@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import fs from 'fs';
 import jsonfile from 'jsonfile';
 import Immutable, {fromJS, Map} from 'immutable';
 import Mustache from 'mustache';
@@ -12,9 +13,12 @@ program
 	.option('--print', "Print output rather than write file")
 	.parse(process.argv);
 
-function makeAuto(data0, matcherSets) {
+function makeAuto(filename, matcherSets) {
+	const data0 = fromJS(jsonfile.readFileSync(filename));
 	let data = data0;
+	const dataNew = {};
 	data.forEach((filedata, basename) => {
+		dataNew[basename] = {};
 		filedata.forEach((entry, lineNoText) => {
 			let entry2;
 			for (let matchers of matcherSets) {
@@ -30,24 +34,42 @@ function makeAuto(data0, matcherSets) {
 							return Mustache.render(x, entry2);
 						}
 					});
-					console.log(result);
-					console.log(fromJS(result));
+					//console.log(result);
+					//console.log(fromJS(result));
 					data = data.mergeDeepIn([basename, lineNoText], fromJS(result));
+					if (!dataNew[basename].hasOwnProperty(lineNoText))
+						dataNew[basename][lineNoText] = {};
+					_.merge(dataNew[basename][lineNoText], result);
 					//_.merge(entry, result);
 					//_.set(dataNew, basename, _.get(dataNew, basename, {}));
 					//_.merge(_.get(dataNew, [basename, lineNoText]), [basename, lineNoText], result);
 				}
 			}
 		});
+		if (_.isEmpty(dataNew[basename]))
+			delete dataNew[basename];
 	});
+
+	const data2 = sortedJsonPropertiesDeep(dataNew);
+	const output = JSON.stringify(data2, null, '\t');
 	if (program.print) {
-		const data2 = sortedJsonPropertiesDeep(data.toJS());
-		console.log(JSON.stringify(data2, null, '\t'));
+		/*console.log("diff:")
+		const diff1 = diff(data0, data);
+		diff1.forEach(patch => console.log(JSON.stringify(patch.toJS())));
+		console.log();
+		console.log(JSON.stringify(patch(Map(), diff1).toJS(), null, '\t'))
+		const data2 = sortedJsonPropertiesDeep(data.toJS());*/
+		console.log(output);
+	}
+	else {
+		const outdir = program.outdir || path.dirname(filename);
+		const basename = path.basename(filename, ".orig");
+		const outfile = path.join(outdir, basename+".auto");
+		fs.writeFileSync(outfile, output, "utf8", err => {});
 	}
 }
 
 _.forEach(program.args, filename => {
 	const matcherSets = jsonfile.readFileSync(program.matcher);
-	const data0 = fromJS(jsonfile.readFileSync(filename));
-	makeAuto(data0, matcherSets);
+	makeAuto(filename, matcherSets);
 });
