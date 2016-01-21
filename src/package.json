@@ -3,17 +3,14 @@
   "version": "1.0.0",
   "description": "handle transformation of bank data to bookkeeping ledgers",
   "main": "lib/test.js",
-  "scripts": {
-    "test": "mocha --compilers js:babel/register --recursive tests/",
-    "jsdoc": "jsdoc -r -c jsdoc.json --readme README.md --tutorials tutorials",
-    "cli": "babel-node -- lib/main.js"
-  },
   "author": "Ellis Whitehead",
   "license": "GPL-3.0",
   "dependencies": {
     "commander": "^2.9.0",
     "csv": "^0.4.6",
+    "immutable": "^3.7.6",
     "inquirer": "^0.11.1",
+    "javascript-natural-sort": "^0.7.1",
     "js-yaml": "^3.4.6",
     "jsonfile": "^2.2.2",
     "lodash": "lodash/lodash",
@@ -31,5 +28,10 @@
     "jsdoc": "git+https://github.com/jsdoc3/jsdoc.git",
     "mocha": "~2.2.5",
     "should": "~7.0.1"
+  },
+  "scripts": {
+    "test": "mocha --compilers js:babel/register --recursive tests/",
+    "jsdoc": "jsdoc -r -c jsdoc.json --readme README.md --tutorials tutorials",
+    "cli": "babel-node -- lib/main.js"
   }
 }

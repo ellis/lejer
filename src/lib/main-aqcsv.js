@@ -1,7 +1,20 @@
 import _ from 'lodash';
+import program from 'commander';
 import CSV from 'csv';
 import fs from 'fs';
 import path from 'path';
+import {sortedJsonPropertiesDeep} from './utils.js';
+
+program
+	.version('0.0.1')
+	.usage("[options] <file ...>")
+	.option('-O --outdir [path]', "Directory for output, if not the same as the input file")
+	.option('--print', "Print output rather than write file")
+	/*.option('-p, --peppers', 'Add peppers')
+	.option('-P, --pineapple', 'Add pineapple')
+	.option('-b, --bbq-sauce', 'Add bbq sauce')
+	.option('-c, --cheese [type]', 'Add the specified type of cheese [marble]', 'marble')*/
+	.parse(process.argv);
 
 function aggregate(x, name) {
 	let s = _.trim(x[name]);
@@ -34,13 +47,20 @@ function loadAqbankingCsv(filename) {
 		});
 		const basename = path.basename(filename, ".csv");
 		const data2 = {};
-		data2[basename] = data1;
-		const outfile = path.join(path.dirname(filename), basename+".orig");
-		fs.writeFileSync(outfile, JSON.stringify(data2, null, '\t'), "utf8", err => {});
+		data2[basename] = sortedJsonPropertiesDeep(data1);
+		if (program.print) {
+			console.log(JSON.stringify(data2, null, '\t'));
+		}
+		else {
+			const outdir = program.outdir || path.dirname(filename);
+			const outfile = path.join(outdir, basename+".orig");
+			fs.writeFileSync(outfile, JSON.stringify(data2, null, '\t'), "utf8", err => {});
+		}
 		//console.log(JSON.stringify(data2, null, '\t'));
 		//console.log(JSON.stringify(_.take(output, 2), null, '\t'));
 	});
 }
 
-const csvFilename = _.last(process.argv);
-loadAqbankingCsv(csvFilename);
+_.forEach(program.args, filename => {
+	loadAqbankingCsv(filename);
+});
