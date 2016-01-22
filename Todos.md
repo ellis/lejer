@@ -7,8 +7,9 @@
 * [x] main-auto: allow user to specify output dir
 * [x] main-repl: read in all `.orig` files, then `.auto` files, then `.user` files
 * [ ] main-repl: process ledger entries:
+	* [x] check entries, fill in missing value for up to one account
+	* [ ] tally balances for accounts
 	* [ ] add basename and index to each entry
-	* [ ] check entries, fill in missing value for up to one account
 	* [ ] `register <account>` command, where accounts are filtered for
 	* [ ] `balance <account>` command
 	* [ ] `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
