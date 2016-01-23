@@ -8,7 +8,7 @@
 * [x] main-repl: read in all `.orig` files, then `.auto` files, then `.user` files
 * [ ] main-repl: process ledger entries:
 	* [x] check entries, fill in missing value for up to one account
-	* [ ] tally balances for accounts
+	* [x] tally balances for accounts
 	* [ ] add basename and index to each entry
 	* [ ] `register <account>` command, where accounts are filtered for
 	* [ ] `balance <account>` command

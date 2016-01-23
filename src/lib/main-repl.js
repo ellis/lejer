@@ -39,6 +39,7 @@ let data0 = loadDirs(program.args);
 //data0.forEach((x, basename) => console.log(`${basename}: ${x.size}`))
 
 function checkEntries(data0) {
+	const balances = {};
 	let data = data0;
 	data.forEach((entries, basename) => {
 		entries.forEach((entry, entryId) => {
@@ -46,12 +47,15 @@ function checkEntries(data0) {
 			//console.log({entry})
 			entry.get("accounts", Map()).forEach((accounts, accountsType) => {
 				accounts.forEach((accountEntry, accountName) => {
-					const accountEntries = (_.isArray(accountEntry)) ? accountEntry : [accountEntry];
-					accountsList.push([[accountsType, accountName], accountEntry]);
+					const accountEntries = (List.isList(accountEntry)) ? accountEntry : List([accountEntry]);
+					accountEntries.forEach(accountEntry => {
+						accountsList.push([accountsType, accountName, accountEntry]);
+					});
 				});
 			});
 			// Sum of values
-			const sum = _.reduce(accountsList, (acc, [, accountEntry]) => {
+			const sum = _.reduce(accountsList, (acc, [, , accountEntry]) => {
+				//console.log({accountEntry})
 				if (!accountEntry.has("amount")) {
 					return acc;
 				}
@@ -61,7 +65,7 @@ function checkEntries(data0) {
 			}, 0);
 			const sumText = sum.toFixed(2);
 			// Check for accounts with missing value
-			const accountsWithoutAmount = _.filter(accountsList, ([, accountEntry]) => !accountEntry.has("amount"));
+			const accountsWithoutAmount = _.filter(accountsList, ([, , accountEntry]) => !accountEntry.has("amount"));
 			if (accountsList.length === 0) {
 				data = data.setIn([basename, entryId, "errors"], List("no accounts assigned"));
 			}
@@ -72,7 +76,7 @@ function checkEntries(data0) {
 				}
 			}
 			else if (accountsWithoutAmount.length === 1) {
-				const [[accountsType, accountName], accountEntry0] = accountsWithoutAmount[0];
+				const [accountsType, accountName, accountEntry0] = accountsWithoutAmount[0];
 				// FIXME: use a currency object to track all of the currencies used, rather than hardcode EUR
 				const accountEntry = accountEntry0.set("amount", sumText+" EUR");
 				data = data.setIn([basename, entryId, "accounts", accountsType, accountName], accountEntry);
@@ -80,10 +84,25 @@ function checkEntries(data0) {
 			else {
 				data = data.setIn([basename, entryId, "errors"], List("multiple accounts without assigned value"));
 			}
-			console.log({sum, sumText, accountsList, accountsWithoutAmount})
+			//console.log({sum, sumText, accountsList, accountsWithoutAmount})
+
+			// Accumulate account balances
+			data.getIn([basename, entryId, "accounts"]).forEach(accounts => {
+				accounts.forEach((accountEntry, accountName) => {
+					const accountEntries = (_.isArray(accountEntry)) ? accountEntry : [accountEntry];
+					accountEntries.forEach(accountEntry => {
+						const n0 = _.get(balances, accountName, 0);
+						const n1 = n0 + Number(accountEntry.get("amount", "0").split(" ")[0]);
+						_.set(balances, accountName, n1);
+					});
+				});
+			});
 		});
 	});
-	return data;
+	return Map({
+		entries: data,
+		balances: fromJS(balances)
+	});
 }
 
 const data1 = checkEntries(data0);
