@@ -9,9 +9,11 @@
 * [ ] main-repl: process ledger entries:
 	* [x] check entries, fill in missing value for up to one account
 	* [x] tally balances for accounts
+	* [ ] create vorpal repl
+	* [ ] `data` command: print data JSON
+	* [ ] `balance [account]` command: print account balances
 	* [ ] add basename and index to each entry
 	* [ ] `register <account>` command, where accounts are filtered for
-	* [ ] `balance <account>` command
 	* [ ] `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
 	* [ ] `a 1` should start an interactive assignment of accounts to entry 1, especially for when multiple accounts need to be added
 	* [ ] add a command to list unbalanced entries
