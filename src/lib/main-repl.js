@@ -107,14 +107,49 @@ function checkEntries(data0) {
 
 const data1 = checkEntries(data0);
 //data1.forEach((x, basename) => console.log(`${basename}: ${x.size}`))
-console.log(JSON.stringify(data1.toJS(), null, '\t'))
+
+function do_balance(data) {
+	let accountBalances = Map();
+	data.get("balances").forEach((balance, accountName) => {
+		accountBalances = accountBalances.setIn(accountName.split(":"), balance);
+	});
+	accountBalances = accountBalances.toJS();
+	//console.log(JSON.stringify(accountBalances, null, "\t"));
+
+	CONTINUE
+	function sum(x, path) {
+		if (_.isPlainObject(x)) {
+			let acc = 0;
+			_.forEach(x, (value, key) => {
+				acc += sum(value, path.concat([key]));
+			})
+			return acc;
+		}
+		else {
+			return x;
+		}
+	}
+	//
+	function compress(x) {
+		_.forEach(x, (value, key) => {
+			if ()
+		})
+		if (x.size === 1) {
+			return
+		}
+	}
+
+	console.log(JSON.stringify(accountBalances, null, "\t"));
+}
 
 function repl() {
 	const vorpal = require('vorpal')();
 	vorpal
-		.command("decks", "List active decks")
-		.action((args, cb) => { do_decks(decks); cb(); })
-		;
+		.command("data", "print data in JSON format")
+		.action((args, cb) => { console.log(JSON.stringify(data1.toJS(), null, '\t')); cb(); });
+	vorpal
+		.command("balance", "show account balances")
+		.action((args, cb) => { do_balance(data1); cb(); });
 	vorpal
 		.delimiter("lejer >")
 		.show();

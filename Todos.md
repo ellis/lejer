@@ -10,7 +10,7 @@
 	* [x] check entries, fill in missing value for up to one account
 	* [x] tally balances for accounts
 	* [x] create vorpal repl
-	* [ ] `data` command: print data JSON
+	* [x] `data` command: print data JSON
 	* [ ] `balance [account]` command: print account balances
 	* [ ] add basename and index to each entry
 	* [ ] `register <account>` command, where accounts are filtered for
