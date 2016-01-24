@@ -9,7 +9,7 @@
 * [ ] main-repl: process ledger entries:
 	* [x] check entries, fill in missing value for up to one account
 	* [x] tally balances for accounts
-	* [ ] create vorpal repl
+	* [x] create vorpal repl
 	* [ ] `data` command: print data JSON
 	* [ ] `balance [account]` command: print account balances
 	* [ ] add basename and index to each entry

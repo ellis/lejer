@@ -108,3 +108,16 @@ function checkEntries(data0) {
 const data1 = checkEntries(data0);
 //data1.forEach((x, basename) => console.log(`${basename}: ${x.size}`))
 console.log(JSON.stringify(data1.toJS(), null, '\t'))
+
+function repl() {
+	const vorpal = require('vorpal')();
+	vorpal
+		.command("decks", "List active decks")
+		.action((args, cb) => { do_decks(decks); cb(); })
+		;
+	vorpal
+		.delimiter("lejer >")
+		.show();
+};
+
+repl();
