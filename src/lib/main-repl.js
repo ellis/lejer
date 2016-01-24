@@ -139,28 +139,32 @@ function do_balance(data) {
 	//console.log({accumulatedBalances, totalSum});
 
 	const lines = [];
-	function fillLines(x, path) {
-		if (!_.isEmpty(path)) {
-			const indent = _.repeat("  ", path.length - 1);
-			const text = indent + _.last(path);
+	function fillLines(x, path, displayPath = []) {
+		const isRoot = _.isEmpty(path);
+		const isNode = _.isPlainObject(x);
+		const isSingularNode = isNode && _.size(x) === 1;
+
+		if (!isRoot && !isSingularNode) {
+			const indent = _.repeat("  ", path.length - displayPath.length);
+			const text = indent + displayPath.join(":");
 			const sum = accumulatedBalances[path.join(":")] || 0;
 			lines.push([text, sum]);
 		}
-		if (_.isPlainObject(x)) {
+
+		// Recurse into children
+		if (isNode) {
 			const keys = _.keys(x);
 			keys.sort(naturalSort);
-			if (keys.length === 1) {
+			if (isSingularNode) {
 				const key = keys[0];
-				fillLines(x[key], path.concat([key]));
+				fillLines(x[key], path.concat([key]), displayPath.concat(key));
 			}
 			else {
 				_.forEach(x, (value, key) => {
 					const path2 = path.concat([key]);
-					fillLines(value, path2);
+					fillLines(value, path2, [key]);
 				});
 			}
-		}
-		else {
 		}
 	}
 	fillLines(accountBalances, []);
