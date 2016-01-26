@@ -6,6 +6,7 @@ import Mustache from 'mustache';
 import naturalSort from 'javascript-natural-sort';
 import program from 'commander';
 import path from 'path';
+import Balance from './Balance.js';
 import {sortedJsonPropertiesDeep} from './utils.js';
 
 program
@@ -186,7 +187,7 @@ function do_balance(data) {
 	console.log(JSON.stringify(accountBalances, null, "\t"));
 }
 
-function repl() {
+function repl(args) {
 	const vorpal = require('vorpal')();
 	vorpal
 		.command("data", "print data in JSON format")
@@ -195,8 +196,18 @@ function repl() {
 		.command("balance", "show account balances")
 		.action((args, cb) => { do_balance(data1); cb(); });
 	vorpal
-		.delimiter("lejer >")
-		.show();
+		.command("test", "test")
+		.action((args, cb) => { Balance.calcBalanceData(data1); cb(); });
+
+	if (_.isEmpty(args)) {
+		vorpal
+			.delimiter("lejer >")
+			.show();
+	}
+	else {
+		vorpal.parse(args);
+	}
 };
 
-repl();
+console.log(JSON.stringify(process.argv))
+repl(_.take(process.argv, 2).concat(["test"]));

@@ -36,6 +36,7 @@
   "scripts": {
     "test": "mocha --compilers js:babel/register --recursive tests/",
     "jsdoc": "jsdoc -r -c jsdoc.json --readme README.md --tutorials tutorials",
-    "cli": "babel-node -- lib/main.js"
+    "cli": "babel-node -- lib/main.js",
+    "repl": "babel-node -- lib/main-repl.js"
   }
 }
