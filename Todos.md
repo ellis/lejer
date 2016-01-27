@@ -11,7 +11,7 @@
 	* [x] tally balances for accounts
 	* [x] create vorpal repl
 	* [x] `data` command: print data JSON
-	* [ ] create module for calculating accumulated hierarchy of balances; should return JSON, and also have a function to print the JSON
+	* [ ] create module for calculating accumulated hierarchy of balances; should return JSON, and also have a function to print the JSON (continue line Balance.js:40)
 	* [ ] create test for calculating balance
 	* [ ] `balance [account]` command: print account balances
 	* [ ] add basename and index to each entry

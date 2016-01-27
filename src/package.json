@@ -34,7 +34,7 @@
     "should": "~7.0.1"
   },
   "scripts": {
-    "test": "mocha --compilers js:babel/register --recursive tests/",
+    "test": "mocha --compilers js:babel-core/register --recursive tests/",
     "jsdoc": "jsdoc -r -c jsdoc.json --readme README.md --tutorials tutorials",
     "cli": "babel-node -- lib/main.js",
     "repl": "babel-node -- lib/main-repl.js"

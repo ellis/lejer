@@ -9,33 +9,35 @@ import naturalSort from 'javascript-natural-sort';
 //import {sortedJsonPropertiesDeep} from './utils.js';
 
 function calcBalanceData(data) {
+	// Take the `data.balances: Map[FullyQualifiedAccountName, Balance]` and create a
+	// hierarchical map from account name to sub-account maps and a ":balance:"
+	// property with the balance assigned specifically to this
+	// FullyQualifiedAccountName.
 	let accountBalances = Map();
 	data.get("balances").forEach((balance, accountName) => {
-		accountBalances = accountBalances.setIn(accountName.split(":"), balance);
+		accountBalances = accountBalances.setIn(accountName.split(":").concat(":balance:"), balance);
 	});
 	accountBalances = accountBalances.toJS();
 	console.log(JSON.stringify(accountBalances, null, "\t"));
 
-	const accumulatedBalances = {};
-	function sum(x, path) {
-		let acc = 0;
-		if (_.isPlainObject(x)) {
-			_.forEach(x, (value, key) => {
-				acc += sum(value, path.concat([key]));
-			});
-		}
-		else {
-			acc = x;
-		}
-		//console.log({path, acc})
-		if (!_.isEmpty(path)) {
-			accumulatedBalances[path.join(":")] = acc;
-			//console.log({accumulatedBalances})
-		}
+	function cumulate(x, path) {
+		//const pathBalance = path.join(":").concat(":balance:");
+		let acc = _.get(x, ":balance:", 0);
+		_.forEach(x, (value, key) => {
+			if (key !== ":balance:") {
+				acc += cumulate(value, path.concat([key]));
+			}
+		});
+		_.set(x, ":balance:", acc);
+		//console.log({path, acc, x})
+		//console.log({accountBalancesCumulative})
 		return acc;
 	}
-	const totalSum = sum(accountBalances, []);
-	console.log({accumulatedBalances, totalSum});
+	const accountBalancesCumulative = _.cloneDeep(accountBalances);
+	cumulate(accountBalancesCumulative, []);
+	console.log("accountBalancesCumulative:"+JSON.stringify(accountBalancesCumulative, null, '\t'));
+
+	// CONTINUE
 
 	const lines = [];
 	function fillLines(x, path, displayPath = []) {
@@ -46,7 +48,7 @@ function calcBalanceData(data) {
 		if (!isRoot && !isSingularNode) {
 			const indent = _.repeat("  ", path.length - displayPath.length);
 			const text = indent + displayPath.join(":");
-			const sum = accumulatedBalances[path.join(":")] || 0;
+			const sum = accountBalancesCumulative[path.join(":")] || 0;
 			lines.push([text, sum]);
 		}
 
