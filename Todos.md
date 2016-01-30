@@ -13,7 +13,7 @@
 	* [x] `data` command: print data JSON
 	* [x] create module for calculating accumulated hierarchy of balances; should return JSON, and also have a function to print the JSON
 	* [x] `balance <account>` command: print account balances
-	* [ ] `balance <accounts...>` command: allow for multiple accounts
+	* [x] `balance <accounts...>` command: allow for multiple accounts
 	* [ ] `register <account>` command, where accounts are filtered for
 	* [ ] create test for calculating balance
 	* [ ] add basename and index to each entry

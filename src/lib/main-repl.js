@@ -111,8 +111,7 @@ function checkEntries(data0) {
 const data1 = checkEntries(data0);
 //data1.forEach((x, basename) => console.log(`${basename}: ${x.size}`))
 
-function do_balance(data, account) {
-	const accountFilters = (account) ? [account] : [];
+function do_balance(data, accountFilters = []) {
 	const balanceData = Balance.calcBalanceData(data, accountFilters);
 	console.log(balanceData.toString());
 }
@@ -124,8 +123,8 @@ function repl(args) {
 		.command("dump", "print data in JSON format")
 		.action((args, cb) => { console.log(JSON.stringify(data1.toJS(), null, '\t')); cb(); });
 	vorpal
-		.command("balance [account]", "show account balances")
-		.action((args, cb) => { do_balance(data1, args.account); cb(); });
+		.command("balance [accounts...]", "show account balances, optionally filtered to only show the given accounts")
+		.action((args, cb) => { do_balance(data1, args.accounts); cb(); });
 	vorpal
 		.command("test", "test")
 		.action((args, cb) => { Balance.calcBalanceData(data1); cb(); });
