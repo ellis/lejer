@@ -15,32 +15,6 @@ class Balance {
 		this.cumulativeBalanceMap = cumulativeBalanceMap;
 	}
 
-	/*
-	calcBalanceDisplayArray() {
-		const lines = [];
-		function fillLines(x, path, indent = -1) {
-			//const pathBalance = path.join(":").concat(":balance:");
-			const propertyCount = _.size(x);
-			if (path.length > 0 && (propertyCount == 1 || propertyCount > 2)) {
-				const balance = _.get(x, ":balance:", 0);
-				lines.push({indent, account: path.join(":"), balance});
-			}
-			if (propertyCount > 1) {
-				const indent2 = (_.size(x) > 2) ? indent + 1 : indent;
-				_.forEach(x, (value, key) => {
-					if (key !== ":balance:") {
-						fillLines(value, path.concat([key]), indent2);
-					}
-				});
-			}
-		}
-		fillLines(this.cumulativeBalanceTree, []);
-		console.log("lines:\n"+JSON.stringify(lines, null, '\t'))
-		this.toStringBalanceDisplayArray(lines)
-		return lines;
-	}
-	*/
-
 	toString() {
 		const rows = [];
 		function fillLines(x, path) {
@@ -74,35 +48,25 @@ class Balance {
 		//console.log();
 		return lines.join("\n");
 	}
-
-	/*
-	toStringBalanceDisplayArray2(rows) {
-		if (_.isUndefined(rows)) {
-			rows = calcBalanceDisplayArray();
-		}
-		const widthCol1 = _.max(_.map(rows, ({indent, account}) => account.length+indent*2));
-		_.forEach(rows, ({indent, account, balance}) => {
-			const indentText = _.repeat("  ", indent);
-			console.log(_.padEnd(indentText+account, widthCol1) + "    " + balance);
-		});
-		console.log();
-		_.forEach(rows, ({indent, account, balance}) => {
-			const indentText = _.repeat("  ", indent);
-			console.log(_.padEnd(indentText+account, widthCol1) + "    " + balance);
-		});
-		CONTINUE
-	}
-	*/
 }
 
-function calcBalanceData(data) {
+function calcBalanceData(data, accountFilters = []) {
 	// Take the `data.balances: Map[FullyQualifiedAccountName, Balance]` and create a
 	// hierarchical map from account name to sub-account maps and a ":balance:"
 	// property with the balance assigned specifically to this
 	// FullyQualifiedAccountName.
+	const accountFilterRxs = _.map(accountFilters, s => new RegExp(`\\b${s}\\b`));
 	let balanceTree = Map();
 	data.get("balances").forEach((balance, accountName) => {
-		balanceTree = balanceTree.setIn(accountName.split(":").concat(":balance:"), balance);
+		//const accountPath = accountName.split(":");
+		/*if (accountFilterRxs.length > 0) {
+			_.forEach(accountFilterRxs, rx => {
+				console.log({rx, accountName, test: rx.test(accountName)})
+			});
+		}*/
+		if (accountFilterRxs.length == 0 || _.some(accountFilterRxs, rx => rx.test(accountName))) {
+			balanceTree = balanceTree.setIn(accountName.split(":").concat(":balance:"), balance);
+		}
 	});
 	balanceTree = balanceTree.toJS();
 	//console.log(JSON.stringify(balanceTree, null, "\t"));

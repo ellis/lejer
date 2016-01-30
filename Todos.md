@@ -12,7 +12,8 @@
 	* [x] create vorpal repl
 	* [x] `data` command: print data JSON
 	* [x] create module for calculating accumulated hierarchy of balances; should return JSON, and also have a function to print the JSON
-	* [ ] `balance <account>` command: print account balances
+	* [x] `balance <account>` command: print account balances
+	* [ ] `balance <accounts...>` command: allow for multiple accounts
 	* [ ] `register <account>` command, where accounts are filtered for
 	* [ ] create test for calculating balance
 	* [ ] add basename and index to each entry
@@ -22,7 +23,7 @@
 	* [ ] add a command to list recent entries
 	* [ ] add a command to set flags on entries (might use that to determine which entries are new/checked)
 	* [ ] maybe allow user to modify an entry by entering YAML to merge back into the entry
-* [ ] consider setting up accounts explicitly
+* [ ] consider configuring accounts explicitly (i.e. you get a warning if an unconfigured account name is used)
 * [ ] consider allowing for virtual accounts which don't need to double-balance
 * [ ] consider renaming file extensions to leja1, lejb1, and lejc1
 * [ ] main-repl: create an interactive cli for listing ledger data

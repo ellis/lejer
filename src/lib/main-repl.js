@@ -111,19 +111,21 @@ function checkEntries(data0) {
 const data1 = checkEntries(data0);
 //data1.forEach((x, basename) => console.log(`${basename}: ${x.size}`))
 
-function do_balance(data) {
-	const balanceData = Balance.calcBalanceData(data1);
+function do_balance(data, account) {
+	const accountFilters = (account) ? [account] : [];
+	const balanceData = Balance.calcBalanceData(data, accountFilters);
 	console.log(balanceData.toString());
 }
 
 function repl(args) {
+	//console.log("repl: "+JSON.stringify(args))
 	const vorpal = require('vorpal')();
 	vorpal
-		.command("data", "print data in JSON format")
+		.command("dump", "print data in JSON format")
 		.action((args, cb) => { console.log(JSON.stringify(data1.toJS(), null, '\t')); cb(); });
 	vorpal
-		.command("balance", "show account balances")
-		.action((args, cb) => { do_balance(data1); cb(); });
+		.command("balance [account]", "show account balances")
+		.action((args, cb) => { do_balance(data1, args.account); cb(); });
 	vorpal
 		.command("test", "test")
 		.action((args, cb) => { Balance.calcBalanceData(data1); cb(); });
@@ -138,6 +140,7 @@ function repl(args) {
 	}
 };
 
+const args = (process.argv.length > 3) ? _.concat(_.take(process.argv, 2), _.drop(process.argv, 3)) : undefined;
 //console.log(JSON.stringify(process.argv))
 //repl(_.take(process.argv, 2).concat(["test"]));
-repl();
+repl(args);
