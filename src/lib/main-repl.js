@@ -116,6 +116,11 @@ function do_balance(data, accountFilters = []) {
 	console.log(balanceData.toString());
 }
 
+function do_register(data, accountFilters = []) {
+	const registerData = Register.calcRegisterData(data, accountFilters);
+	console.log(registerData.toString());
+}
+
 function repl(args) {
 	//console.log("repl: "+JSON.stringify(args))
 	const vorpal = require('vorpal')();
@@ -125,6 +130,9 @@ function repl(args) {
 	vorpal
 		.command("balance [accounts...]", "show account balances, optionally filtered to only show the given accounts")
 		.action((args, cb) => { do_balance(data1, args.accounts); cb(); });
+	vorpal
+		.command("register [accounts...]", "show register of journal entries, optionally filtered to only show the given accounts")
+		.action((args, cb) => { do_register(data1, args.accounts); cb(); });
 	vorpal
 		.command("test", "test")
 		.action((args, cb) => { Balance.calcBalanceData(data1); cb(); });
