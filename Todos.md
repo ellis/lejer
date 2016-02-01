@@ -14,7 +14,7 @@
 	* [x] create module for calculating accumulated hierarchy of balances; should return JSON, and also have a function to print the JSON
 	* [x] `balance <account>` command: print account balances
 	* [x] `balance <accounts...>` command: allow for multiple accounts
-	* [ ] `register <account>` command, where accounts are filtered for (see Register.js:22)
+	* [ ] `register <account>` command, where accounts are filtered for
 	* [ ] create test for calculating balance
 	* [ ] add basename and index to each entry
 	* [ ] `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value

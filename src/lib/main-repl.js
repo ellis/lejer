@@ -7,6 +7,7 @@ import naturalSort from 'javascript-natural-sort';
 import program from 'commander';
 import path from 'path';
 import Balance from './Balance.js';
+import Register from './Register.js';
 import {sortedJsonPropertiesDeep} from './utils.js';
 
 program
@@ -117,7 +118,7 @@ function do_balance(data, accountFilters = []) {
 }
 
 function do_register(data, accountFilters = []) {
-	const registerData = Register.calcRegisterData(data, accountFilters);
+	const registerData = new Register(data, accountFilters);
 	console.log(registerData.toString());
 }
 
