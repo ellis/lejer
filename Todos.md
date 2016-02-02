@@ -16,7 +16,7 @@
 	* [x] `balance <accounts...>` command: allow for multiple accounts
 	* [ ] `register <account>` command:
 		* [x] sort by date
-		* [ ] column for running tally
+		* [x] column for running tally
 		* [ ] filter on accounts
 		* [ ] add column for number of entries (so that user can edit them by number)
 	* [ ] create test for calculating balance
@@ -36,6 +36,7 @@
 * [ ] cli: let user change entries, and save the changes as diffs in `.user` file
 * [ ] allow for loading matchers.js instead of just matchers.json
 * [ ] create a commodities class that handles multiple commodities and exchange rates at different times
+* [ ] Register: use commodities class
 
 # JMESPath tests
 
