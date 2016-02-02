@@ -29,7 +29,7 @@ export default class Register {
 
 		// Sort
 		l = _.sortBy(l, x => _.take(x, 3));
-		//console.log({l});
+		console.log({l});
 
 		this.registerEntries = l;
 	}
@@ -37,12 +37,14 @@ export default class Register {
 	toString() {
 		const rows = [];
 		let sum = 0;
+		let index = 0;
 		_.forEach(this.registerEntries, ([, , , entry]) => {
 			let first = true;
 			_.forEach(entry.accounts, account => {
+				index++;
 				account.forEach((accountEntryData, accountName) => {
 					//console.log({accountName, accountEntryData})
-					const row = (first) ? [entry.date, entry.name] : ["", ""];
+					const row = (first) ? [index.toString(), entry.date, entry.name] : ["", "", ""];
 					const amountText = accountEntryData.get("amount");
 					const amount = _.isEmpty(amountText) ? 0 : Number(amountText.split(" ")[0]);
 					sum += amount;
@@ -51,22 +53,24 @@ export default class Register {
 					row.push(sum.toFixed(2));
 					rows.push(row);
 				});
+				first = false;
 			});
 		});
 		//console.log({rows})
 
 		// calculate width of all columns
-		const widthCols = _.range(5).map(i => _.max(_.map(rows, row => row[i].length)));
+		const widthCols = _.range(6).map(i => _.max(_.map(rows, row => row[i].length)));
 		//console.log({widthCols});
 
 		const lines = [];
 		_.forEach(rows, row => {
 			const line = [
-				_.padEnd(row[0], widthCols[0]),
+				_.padStart(row[0], widthCols[0]),
 				_.padEnd(row[1], widthCols[1]),
 				_.padEnd(row[2], widthCols[2]),
-				_.padStart(row[3], widthCols[3]),
-				_.padStart(row[4], widthCols[4])
+				_.padEnd(row[3], widthCols[3]),
+				_.padStart(row[4], widthCols[4]),
+				_.padStart(row[5], widthCols[5])
 			].join("  ");
 			lines.push(line);
 			//console.log(_.padEnd(indentText+account, widthCol1) + "    " + balance);
