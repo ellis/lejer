@@ -21,22 +21,26 @@ export default class Register {
 						name: entry.get("remoteName"),
 						accounts
 					};
-					l.push(registerEntry);
+					l.push([registerEntry.date, basename, parseInt(entryId), registerEntry]);
 				}
 			});
 		});
 		//console.log({l});
-		//
+
+		// Sort
+		l = _.sortBy(l, x => _.take(x, 3));
+		//console.log({l});
+
 		this.registerEntries = l;
 	}
 
 	toString() {
 		const rows = [];
-		_.forEach(this.registerEntries, entry => {
+		_.forEach(this.registerEntries, ([, , , entry]) => {
 			let first = true;
 			_.forEach(entry.accounts, account => {
 				account.forEach((accountEntryData, accountName) => {
-					console.log({accountName, accountEntryData})
+					//console.log({accountName, accountEntryData})
 					const row = (first) ? [entry.date, entry.name] : ["", ""];
 					row.push(accountName);
 					row.push(accountEntryData.get("amount"));
@@ -44,11 +48,11 @@ export default class Register {
 				});
 			});
 		});
-		console.log({rows})
+		//console.log({rows})
 
 		// calculate width of all columns
 		const widthCols = _.range(4).map(i => _.max(_.map(rows, row => row[i].length)));
-		console.log({widthCols});
+		//console.log({widthCols});
 
 		const lines = [];
 		_.forEach(rows, row => {
