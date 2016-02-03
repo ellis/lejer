@@ -17,6 +17,7 @@ program
 
 function loadDirs(dirs) {
 	const data = {};
+	// Load data files from all directories pass on the command line:
 	_.forEach(program.args, dir => {
 		if (fs.existsSync(dir)) {
 			// Load all json files into a map to a list of
@@ -32,6 +33,14 @@ function loadDirs(dirs) {
 			});
 		}
 	});
+
+	// Add path = [basename, entryId] to each entry
+	_.forEach(data, (entries, basename) => {
+		_.forEach(entries, (entry, entryId) => {
+			data[basename][entryId].path = [basename, entryId];
+		});
+	});
+
 	//console.log(JSON.stringify(data, null, '\t'))
 	return fromJS(data);
 }

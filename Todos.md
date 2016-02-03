@@ -14,13 +14,12 @@
 	* [x] create module for calculating accumulated hierarchy of balances; should return JSON, and also have a function to print the JSON
 	* [x] `balance <account>` command: print account balances
 	* [x] `balance <accounts...>` command: allow for multiple accounts
-	* [ ] `register <account>` command:
+	* [x] `register <account>` command:
 		* [x] sort by date
 		* [x] column for running tally
 		* [x] add column for number of entries (so that user can edit them by number)
 		* [x] filter on accounts
-	* [ ] create test for calculating balance
-	* [ ] add basename and index to each entry
+	* [x] add basename and index to each entry
 	* [ ] `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
 	* [ ] `a 1` should start an interactive assignment of accounts to entry 1, especially for when multiple accounts need to be added
 	* [ ] add a command to list unbalanced entries
@@ -37,6 +36,9 @@
 * [ ] allow for loading matchers.js instead of just matchers.json
 * [ ] create a commodities class that handles multiple commodities and exchange rates at different times
 * [ ] Register: use commodities class
+
+* [ ] create tests for Balance
+* [ ] create tests for Register
 
 # JMESPath tests
 
