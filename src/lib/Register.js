@@ -4,7 +4,7 @@ import naturalSort from 'javascript-natural-sort';
 
 export default class Register {
 	constructor(data, accountFilters = []) {
-		const accountFilterRxs = _.map(accountFilters, s => new RegExp(`\\b${s}\\b`));
+		this.accountFilterRxs = _.map(accountFilters, s => new RegExp(`\\b${s}\\b`));
 		let l = [];
 		data.get("entries", Map()).forEach((entries, basename) => {
 			entries.forEach((entry, entryId) => {
@@ -43,17 +43,20 @@ export default class Register {
 			_.forEach(entry.accounts, account => {
 				index++;
 				account.forEach((accountEntryData, accountName) => {
-					//console.log({accountName, accountEntryData})
-					const row = (first) ? [index.toString(), entry.date, entry.name] : ["", "", ""];
-					const amountText = accountEntryData.get("amount");
-					const amount = _.isEmpty(amountText) ? 0 : Number(amountText.split(" ")[0]);
-					sum += amount;
-					row.push(accountName);
-					row.push(accountEntryData.get("amount"));
-					row.push(sum.toFixed(2));
-					rows.push(row);
+					const doShow = (this.accountFilterRxs.length == 0 || _.some(this.accountFilterRxs, rx => rx.test(accountName)));
+					if (doShow) {
+						//console.log({accountName, accountEntryData})
+						const row = (first) ? [index.toString(), entry.date, entry.name] : ["", "", ""];
+						const amountText = accountEntryData.get("amount");
+						const amount = _.isEmpty(amountText) ? 0 : Number(amountText.split(" ")[0]);
+						sum += amount;
+						row.push(accountName);
+						row.push(accountEntryData.get("amount"));
+						row.push(sum.toFixed(2));
+						rows.push(row);
+						first = false;
+					}
 				});
-				first = false;
 			});
 		});
 		//console.log({rows})

@@ -18,7 +18,7 @@
 		* [x] sort by date
 		* [x] column for running tally
 		* [x] add column for number of entries (so that user can edit them by number)
-		* [ ] filter on accounts
+		* [x] filter on accounts
 	* [ ] create test for calculating balance
 	* [ ] add basename and index to each entry
 	* [ ] `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
