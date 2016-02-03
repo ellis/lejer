@@ -14,6 +14,30 @@ export default class Register {
 					entry.get("accounts").forEach(x => {
 						accounts.push(x);
 					});
+
+					// Check whether entry's account pass the filter:
+					_.forEach(accounts, account => {
+						CONTINUE
+						index++;
+						account.forEach((accountEntryData, accountName) => {
+							const doShow = (this.accountFilterRxs.length == 0 || _.some(this.accountFilterRxs, rx => rx.test(accountName)));
+							if (doShow) {
+								//console.log({accountName, accountEntryData})
+								const row = (first) ? [index.toString(), entry.date, entry.name] : ["", "", ""];
+								const amountText = accountEntryData.get("amount");
+								const amount = _.isEmpty(amountText) ? 0 : Number(amountText.split(" ")[0]);
+								sum += amount;
+								row.push(accountName);
+								row.push(accountEntryData.get("amount"));
+								row.push(sum.toFixed(2));
+								rows.push(row);
+								first = false;
+							}
+						});
+					});
+
+					CONTINUE
+
 					const registerEntry = {
 						date: entry.get("date"),
 						basename,
@@ -29,7 +53,32 @@ export default class Register {
 
 		// Sort
 		l = _.sortBy(l, x => _.take(x, 3));
-		console.log({l});
+		//console.log({l});
+
+		const rows = [];
+		let sum = 0;
+		let index = 0;
+		_.forEach(l, ([, , , entry]) => {
+			let first = true;
+			_.forEach(entry.accounts, account => {
+				index++;
+				account.forEach((accountEntryData, accountName) => {
+					const doShow = (this.accountFilterRxs.length == 0 || _.some(this.accountFilterRxs, rx => rx.test(accountName)));
+					if (doShow) {
+						//console.log({accountName, accountEntryData})
+						const row = (first) ? [index.toString(), entry.date, entry.name] : ["", "", ""];
+						const amountText = accountEntryData.get("amount");
+						const amount = _.isEmpty(amountText) ? 0 : Number(amountText.split(" ")[0]);
+						sum += amount;
+						row.push(accountName);
+						row.push(accountEntryData.get("amount"));
+						row.push(sum.toFixed(2));
+						rows.push(row);
+						first = false;
+					}
+				});
+			});
+		});
 
 		this.registerEntries = l;
 	}

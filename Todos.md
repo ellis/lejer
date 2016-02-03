@@ -6,7 +6,7 @@
 * [x] main-aqcsv: allow user to specify output dir
 * [x] main-auto: allow user to specify output dir
 * [x] main-repl: read in all `.orig` files, then `.auto` files, then `.user` files
-* [ ] main-repl: process ledger entries:
+* [x] main-repl: process ledger entries:
 	* [x] check entries, fill in missing value for up to one account
 	* [x] tally balances for accounts
 	* [x] create vorpal repl
@@ -20,12 +20,12 @@
 		* [x] add column for number of entries (so that user can edit them by number)
 		* [x] filter on accounts
 	* [x] add basename and index to each entry
-	* [ ] `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
-	* [ ] `a 1` should start an interactive assignment of accounts to entry 1, especially for when multiple accounts need to be added
-	* [ ] add a command to list unbalanced entries
-	* [ ] add a command to list recent entries
-	* [ ] add a command to set flags on entries (might use that to determine which entries are new/checked)
-	* [ ] maybe allow user to modify an entry by entering YAML to merge back into the entry
+* [ ] `register`: should update state with map from index to entry (add from main-repl, to a field like `repl.registerIndexes`)
+* [ ] repl: `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
+* [ ] repl: `a 1` should start an interactive assignment of accounts to entry 1, especially for when multiple accounts need to be added
+* [ ] repl: add a command to list recent entries
+* [ ] repl: add a command to set flags on entries (might use that to determine which entries are new/checked)
+* [ ] repl: maybe allow user to modify an entry by entering YAML to merge back into the entry
 * [ ] consider configuring accounts explicitly (i.e. you get a warning if an unconfigured account name is used)
 * [ ] consider allowing for virtual accounts which don't need to double-balance
 * [ ] consider renaming file extensions to leja1, lejb1, and lejc1
@@ -36,6 +36,7 @@
 * [ ] allow for loading matchers.js instead of just matchers.json
 * [ ] create a commodities class that handles multiple commodities and exchange rates at different times
 * [ ] Register: use commodities class
+* [ ] repl: add a command to list unbalanced entries
 
 * [ ] create tests for Balance
 * [ ] create tests for Register
