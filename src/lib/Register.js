@@ -6,46 +6,35 @@ export default class Register {
 	constructor(data, accountFilters = []) {
 		this.accountFilterRxs = _.map(accountFilters, s => new RegExp(`\\b${s}\\b`));
 		let l = [];
+
 		data.get("entries", Map()).forEach((entries, basename) => {
 			entries.forEach((entry, entryId) => {
 				const isOk = true;// (accountFilterRxs.length == 0 || _.some(accountFilterRxs, rx => rx.test(accountName)));
 				if (isOk) {
 					const accounts = [];
-					entry.get("accounts").forEach(x => {
-						accounts.push(x);
-					});
-
 					// Check whether entry's account pass the filter:
-					_.forEach(accounts, account => {
-						CONTINUE
-						index++;
+					entry.get("accounts").forEach(account => {
 						account.forEach((accountEntryData, accountName) => {
 							const doShow = (this.accountFilterRxs.length == 0 || _.some(this.accountFilterRxs, rx => rx.test(accountName)));
 							if (doShow) {
 								//console.log({accountName, accountEntryData})
-								const row = (first) ? [index.toString(), entry.date, entry.name] : ["", "", ""];
 								const amountText = accountEntryData.get("amount");
 								const amount = _.isEmpty(amountText) ? 0 : Number(amountText.split(" ")[0]);
-								sum += amount;
-								row.push(accountName);
-								row.push(accountEntryData.get("amount"));
-								row.push(sum.toFixed(2));
-								rows.push(row);
-								first = false;
+								accounts.push({accountName, amountText, amount});
 							}
 						});
 					});
 
-					CONTINUE
-
-					const registerEntry = {
-						date: entry.get("date"),
-						basename,
-						entryId,
-						name: entry.get("remoteName"),
-						accounts
-					};
-					l.push([registerEntry.date, basename, parseInt(entryId), registerEntry]);
+					if (accounts.length > 0) {
+						const registerEntry = {
+							date: entry.get("date"),
+							basename,
+							entryId,
+							name: entry.get("remoteName"),
+							accounts
+						};
+						l.push([registerEntry.date, basename, parseInt(entryId), registerEntry]);
+					}
 				}
 			});
 		});
@@ -55,28 +44,12 @@ export default class Register {
 		l = _.sortBy(l, x => _.take(x, 3));
 		//console.log({l});
 
-		const rows = [];
+		// Calculate cumulative sum
 		let sum = 0;
-		let index = 0;
 		_.forEach(l, ([, , , entry]) => {
-			let first = true;
 			_.forEach(entry.accounts, account => {
-				index++;
-				account.forEach((accountEntryData, accountName) => {
-					const doShow = (this.accountFilterRxs.length == 0 || _.some(this.accountFilterRxs, rx => rx.test(accountName)));
-					if (doShow) {
-						//console.log({accountName, accountEntryData})
-						const row = (first) ? [index.toString(), entry.date, entry.name] : ["", "", ""];
-						const amountText = accountEntryData.get("amount");
-						const amount = _.isEmpty(amountText) ? 0 : Number(amountText.split(" ")[0]);
-						sum += amount;
-						row.push(accountName);
-						row.push(accountEntryData.get("amount"));
-						row.push(sum.toFixed(2));
-						rows.push(row);
-						first = false;
-					}
-				});
+				sum += account.amount;
+				account.sum = sum.toFixed(2);
 			});
 		});
 
@@ -85,34 +58,25 @@ export default class Register {
 
 	toString() {
 		const rows = [];
-		let sum = 0;
 		let index = 0;
 		_.forEach(this.registerEntries, ([, , , entry]) => {
 			let first = true;
 			_.forEach(entry.accounts, account => {
 				index++;
-				account.forEach((accountEntryData, accountName) => {
-					const doShow = (this.accountFilterRxs.length == 0 || _.some(this.accountFilterRxs, rx => rx.test(accountName)));
-					if (doShow) {
-						//console.log({accountName, accountEntryData})
-						const row = (first) ? [index.toString(), entry.date, entry.name] : ["", "", ""];
-						const amountText = accountEntryData.get("amount");
-						const amount = _.isEmpty(amountText) ? 0 : Number(amountText.split(" ")[0]);
-						sum += amount;
-						row.push(accountName);
-						row.push(accountEntryData.get("amount"));
-						row.push(sum.toFixed(2));
-						rows.push(row);
-						first = false;
-					}
-				});
+				//console.log({accountName, accountEntryData})
+				const row = (first) ? [index.toString(), entry.date, entry.name] : ["", "", ""];
+				row.push(account.accountName);
+				row.push(account.amountText);
+				row.push(account.sum);
+				rows.push(row);
+				first = false;
 			});
 		});
 		//console.log({rows})
 
 		// calculate width of all columns
 		const widthCols = _.range(6).map(i => _.max(_.map(rows, row => row[i].length)));
-		//console.log({widthCols});
+		console.log({widthCols});
 
 		const lines = [];
 		_.forEach(rows, row => {
