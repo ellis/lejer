@@ -20,7 +20,7 @@
 		* [x] add column for number of entries (so that user can edit them by number)
 		* [x] filter on accounts
 	* [x] add basename and index to each entry
-* [ ] `register`: should update state with map from index to entry (add from main-repl, to a field like `repl.registerIndexes`)
+* [x] `register`: should update state with map from index to entry (add from main-repl, to a field like `repl.registerIndexes`)
 * [ ] repl: `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
 * [ ] repl: `a 1` should start an interactive assignment of accounts to entry 1, especially for when multiple accounts need to be added
 * [ ] repl: add a command to list recent entries

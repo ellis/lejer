@@ -118,7 +118,7 @@ function checkEntries(data0) {
 	});
 }
 
-const data1 = checkEntries(data0);
+let data1 = checkEntries(data0);
 //data1.forEach((x, basename) => console.log(`${basename}: ${x.size}`))
 
 function do_balance(data, accountFilters = []) {
@@ -128,6 +128,7 @@ function do_balance(data, accountFilters = []) {
 
 function do_register(data, accountFilters = []) {
 	const registerData = new Register(data, accountFilters);
+	data1 = data1.setIn(["repl", "register"], fromJS(registerData.registerEntries));
 	console.log(registerData.toString());
 }
 
