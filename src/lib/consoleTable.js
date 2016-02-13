@@ -18,7 +18,7 @@ export function getTableString(rows, columnNames) {
 	}
 	updateWidths([columnNames]);
 	updateWidths(rows);
-	console.log({widthCols});
+	//console.log({widthCols});
 
 	const lines = [];
 	function addLines(rows) {
