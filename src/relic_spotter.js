@@ -6,6 +6,7 @@ import {getTableString} from './lib/consoleTable.js';
 
 const transactions = {
 	"1": {
+		data: "2012-04-01",
 		description: "Sell shares",
 		accounts: {
 			"assets:cash": [{amount: 250000, bucket: "financing"}],
@@ -14,6 +15,7 @@ const transactions = {
 		}
 	},
 	"3": {
+		data: "2012-04-02",
 		description: "Legal fees",
 		accounts: {
 			"assets:cash": [{amount: -3900, bucket: "operating"}],
@@ -21,20 +23,22 @@ const transactions = {
 		}
 	},
 	"4": {
+		data: "2012-04-07",
 		description: "Buy building and land",
 		accounts: {
 			"assets:cash": [{amount: 124000, bucket: "financing"}, {amount: -155000, bucket: "investing"}],
 			"liabilities:mortgage payable": [{amount: -124000}],
-			"assets:building": [{amount: 52000}],
+			"assets:depreciable:buildings:value": [{amount: 52000}],
 			"assets:land": [{amount: 103000}]
 		}
 	},
 	"5": {
+		data: "2012-05-25",
 		description: "Building renovation",
 		comment: "intended to increase building value",
 		accounts: {
 			"assets:cash": [{amount: -33000, bucket: "investing"}],
-			"assets:building": [{amount: 33000}],
+			"assets:depreciable:buildings:value": [{amount: 33000}],
 		}
 	},
 	"6": {
@@ -43,7 +47,7 @@ const transactions = {
 		comment: "expected life of 2 years",
 		accounts: {
 			"assets:cash": [{amount: -120000, bucket: "investing"}],
-			"assets:metal detectors": [{amount: 120000}],
+			"assets:depreciable:equipment:value": [{amount: 120000}],
 		}
 	},
 	"7": {
@@ -90,6 +94,7 @@ const transactions = {
 		}
 	},
 	"13": {
+		date: "2012-07-31",
 		description: "Pay supplier",
 		comment: "Pay for inventory bought in transaction 7",
 		accounts: {
@@ -98,6 +103,7 @@ const transactions = {
 		}
 	},
 	"14": {
+		date: "2012-08-31",
 		description: "Pay dividend",
 		accounts: {
 			"assets:cash": [{amount: -2500, bucket: "financing"}],
@@ -155,12 +161,94 @@ const transactions = {
 			"expenses:salaries": [{amount: 82000}],
 		}
 	},
+	"21": {
+		phase: "adjusting",
+		description: "Accrued interest",
+		date: "2012-12-31",
+		accounts: {
+			"liabilities:interest": [{amount: -4900}],
+			"expenses:interest": [{amount: 4900}]
+		}
+	},
+	"22": {
+		phase: "adjusting",
+		description: "Depreciation on building",
+		date: "2012-12-31",
+		accounts: {
+			"assets:depreciable:buildings:depreciation": [{amount: -1500}],
+			"expenses:depreciation:buildings": [{amount: 1500}]
+		}
+	},
+	"23": {
+		phase: "adjusting",
+		description: "Depreciation on metal detectors",
+		date: "2012-12-31",
+		accounts: {
+			"assets:depreciable:equipment:depreciation": [{amount: -30000}],
+			"expenses:depreciation:equipment": [{amount: 30000}]
+		}
+	},
+	"24": {
+		phase: "adjusting",
+		description: "Amortization on software license, see #8",
+		date: "2012-12-31",
+		accounts: {
+			"assets:prepaid software": [{amount: -350}],
+			"expenses:software amortization": [{amount: 350}]
+		}
+	},
+	"25": {
+		phase: "adjusting",
+		description: "Expense prepaid advertising, see #9",
+		date: "2012-12-31",
+		accounts: {
+			"assets:prepaid advertising": [{amount: -4000}],
+			"expenses:advertising": [{amount: 4000}]
+		}
+	},
+	"26": {
+		phase: "adjusting",
+		description: "Accumulated interest receivable, see #10",
+		date: "2012-12-31",
+		accounts: {
+			"revenues:interest": [{amount: -250}],
+			"assets:interest receivable": [{amount: 250}]
+		}
+	},
+	"27": {
+		phase: "adjusting",
+		description: "Earning of unearned revenues, see #15",
+		date: "2012-12-31",
+		accounts: {
+			"revenues:rental": [{amount: -100}],
+			"liabilities:unearned rental revenue": [{amount: 100}]
+		}
+	},
+	"28": {
+		phase: "adjusting",
+		description: "Estimated income taxes",
+		date: "2012-12-31",
+		accounts: {
+			"liabilities:income taxes payable": [{amount: -630}],
+			"expenses:income taxes": [{amount: 630}],
+		}
+	},
 };
 
-function calcTAccounts() {
+const accountingPhases = {
+	adjusting: 1,
+	closing: 2,
+};
+
+function calcTAccounts(phase = 0) {
 	const taccounts = {};
 
 	_.forEach(transactions, (t, id) => {
+		// Filter the transactions by phase
+		const tPhase = _.get(accountingPhases, t.phase, 0);
+		//console.log({tPhase, phase})
+		if (phase < tPhase) return;
+
 		_.forEach(t.accounts, (accountEntries, accountName) => {
 			const x = _.get(taccounts, [accountName], {items: {}, sumOut: 0, sumIn: 0, sum: 0});
 			_.forEach(accountEntries, accountEntry => {
@@ -178,15 +266,19 @@ function calcTAccounts() {
 		});
 	});
 
-	console.log(JSON.stringify(taccounts, null, '\t'));
+	//console.log(JSON.stringify(taccounts, null, '\t'));
 	return taccounts;
 }
 
 // Report from Lecture 2.2
-function report220() {
-	console.log("Unadjusted Trial Balance");
+function reportBalance(phase = 0) {
+	const title
+		= (phase === 0) ? "Unadjusted Trial Balance"
+		: (phase === 1) ? "Adjusted Trial Balance"
+		: "Balance";
+	console.log(title);
 
-	const taccounts = calcTAccounts();
+	const taccounts = calcTAccounts(phase);
 	const groups = { assets: {}, liabilities: {}, equity: {}, revenues: {}, expenses: {} };
 	_.forEach(taccounts, (x, accountName) => {
 		const accountPath = accountName.split(":");
@@ -196,7 +288,7 @@ function report220() {
 		}
 	});
 
-	console.log(JSON.stringify(groups, null, '\t'))
+	//console.log(JSON.stringify(groups, null, '\t'))
 
 	const rows = [];
 	let sumIn = 0;
@@ -216,12 +308,39 @@ function report220() {
 	rows.push(["Total", sumIn, sumOut]);
 
 	console.log(getTableString(rows, ["Account", "In", "Out"]));
+	console.log();
+}
 
+// Report from Lecture 2.5
+function reportIncome() {
+	console.log("Income Statement for 2012");
+
+	const taccounts = calcTAccounts(accountingPhases.adjusting);
+	console.log(JSON.stringify(taccounts, null, '\t'));
+
+	const rows = [];
+	function printAndSum(title, accountNames, factor) {
+		let sum = 0;
+		rows.push([title]);
+		_.forEach(accountNames, accountName => {
+			const tsum = taccounts[accountName].sum * factor;
+			rows.push(["  "+accountName, tsum]);
+			sum += tsum;
+		});
+		return sum;
+	}
+
+	const revenues = printAndSum("Revenues", ["revenues:rental", "revenues:sales"], -1);
+	rows.push(["Total revenues", revenues]);
+
+	CONTINUE
+
+	console.log(getTableString(rows, ["Account", "Balance"]));
 	console.log();
 }
 
 // Report from Lecture 3.1.2
-function report312() {
+function reportCashFlows() {
 	console.log("Cash flows");
 
 	const bucketToCol = {
@@ -257,6 +376,12 @@ function report312() {
 	console.log();
 }
 
-report220();
+reportBalance(0);
+console.log();
 
-report312();
+reportBalance(accountingPhases.adjusting);
+console.log();
+
+reportIncome();
+
+//reportCashFlows();
