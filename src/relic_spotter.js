@@ -268,14 +268,14 @@ const accountingPhases = {
 	closing: 2,
 };
 
-function calcTAccounts(transactions, phase = 0) {
+function calcTAccounts(transactions, phaseMax = 0, phaseMin = 0) {
 	const taccounts = {};
 
 	_.forEach(transactions, (t, id) => {
 		// Filter the transactions by phase
 		const tPhase = _.get(accountingPhases, t.phase, 0);
 		//console.log({tPhase, phase})
-		if (phase < tPhase) return;
+		if (tPhase < phaseMin || tPhase > phaseMax) return;
 
 		_.forEach(t.accounts, (accountEntries, accountName) => {
 			const x = _.get(taccounts, [accountName], {items: {}, sumOut: 0, sumIn: 0, sum: 0});
@@ -299,7 +299,7 @@ function calcTAccounts(transactions, phase = 0) {
 }
 
 // Report from Lecture 2.2
-function reportTrialBalances(transactions, phase = 0) {
+function reportTrialBalance(transactions, phase = 0) {
 	const title
 		= (phase === 0) ? "Unadjusted Trial Balance"
 		: (phase === 1) ? "Adjusted Trial Balance"
@@ -340,23 +340,27 @@ function reportTrialBalances(transactions, phase = 0) {
 	console.log();
 }
 
-function reportTrialBalance(transactions, phase = 0) {
-	const title
-		= (phase === 0) ? "Unadjusted Trial Balance"
-		: (phase === 1) ? "Adjusted Trial Balance"
-		: (phase === 2) ? "Post-Closing Trial Balances"
-		: "Balance";
-	console.log(title);
+// Report from Lecture 2.2
+function reportTrialBalances(transactions) {
+	console.log("Trial Balances");
 
-	const taccounts = calcTAccounts(transactions, phase);
-	const groups = { assets: {}, liabilities: {}, equity: {}, revenues: {}, expenses: {} };
-	_.forEach(taccounts, (x, accountName) => {
-		const accountPath = accountName.split(":");
-		const accountName0 = accountPath[0];
-		if (groups.hasOwnProperty(accountName0)) {
-			_.setWith(groups, [accountName0, _.drop(accountPath, 1).join(":")], x.sum, Object);
-		}
-	});
+	//CONTINUE: get taccounts for each phase, and
+	const groupsList = [];
+	for (let phase = 0; phase <= accountingPhases.closing; phase++) {
+		const groups = { assets: {}, liabilities: {}, equity: {}, revenues: {}, expenses: {} };
+		const taccountsOne = calcTAccounts(transactions, phase, phase);
+		const taccountsAcc = calcTAccounts(transactions, phase, 0);
+		_.forEach(taccounts, (x, accountName) => {
+			const accountPath = accountName.split(":");
+			const accountName0 = accountPath[0];
+			if (groups.hasOwnProperty(accountName0)) {
+				_.setWith(groups, [accountName0, _.drop(accountPath, 1).join(":")], x.sum, Object);
+			}
+		});
+		groupsList.push(groups);
+	}
+
+	CONTINUE: need to handle merging of the different phases of groupsList into rows
 
 	//console.log(JSON.stringify(groups, null, '\t'))
 
