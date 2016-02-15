@@ -233,6 +233,34 @@ const transactions = {
 			"expenses:income taxes": [{amount: 630}],
 		}
 	},
+	"C1": {
+		phase: "closing",
+		description: "Revenues to Retained Earnings",
+		date: "2012-12-31",
+		accounts: {
+			"equity:retained earnings": [{amount: -159650}],
+			"revenues:sales": [{amount: 35000}],
+			"revenues:rental": [{amount: 124400}],
+			"revenues:interest": [{amount: 250}]
+		}
+	},
+	"C2": {
+		"phase": "closing",
+		description: "Expenses to Retained Earnings",
+		date: "2012-12-31",
+		"accounts": {
+			"equity:retained earnings": [{amount: 159650}],
+			"expenses:advertising": [ { "amount": -4000 } ],
+			"expenses:cost of goods sold": [ { "amount": -30000 } ],
+			"expenses:depreciation:buildings": [ { "amount": -1500 } ],
+			"expenses:depreciation:equipment": [ { "amount": -30000 } ],
+			"expenses:income taxes": [ { "amount": -630 } ],
+			"expenses:interest": [ { "amount": -4900 } ],
+			"expenses:legal fees": [ { "amount": -3900 } ],
+			"expenses:salaries": [ { "amount": -82000 } ],
+			"expenses:software amortization": [ { "amount": -350 } ]
+		}
+	}
 };
 
 const accountingPhases = {
@@ -240,7 +268,7 @@ const accountingPhases = {
 	closing: 2,
 };
 
-function calcTAccounts(phase = 0) {
+function calcTAccounts(transactions, phase = 0) {
 	const taccounts = {};
 
 	_.forEach(transactions, (t, id) => {
@@ -271,14 +299,56 @@ function calcTAccounts(phase = 0) {
 }
 
 // Report from Lecture 2.2
-function reportBalance(phase = 0) {
+function reportTrialBalances(transactions, phase = 0) {
 	const title
 		= (phase === 0) ? "Unadjusted Trial Balance"
 		: (phase === 1) ? "Adjusted Trial Balance"
+		: (phase === 2) ? "Post-Closing Trial Balances"
 		: "Balance";
 	console.log(title);
 
-	const taccounts = calcTAccounts(phase);
+	const taccounts = calcTAccounts(transactions, phase);
+	const groups = { assets: {}, liabilities: {}, equity: {}, revenues: {}, expenses: {} };
+	_.forEach(taccounts, (x, accountName) => {
+		const accountPath = accountName.split(":");
+		const accountName0 = accountPath[0];
+		if (groups.hasOwnProperty(accountName0)) {
+			_.setWith(groups, [accountName0, _.drop(accountPath, 1).join(":")], x.sum, Object);
+		}
+	});
+
+	//console.log(JSON.stringify(groups, null, '\t'))
+
+	const rows = [];
+	let sumIn = 0;
+	let sumOut = 0;
+	_.forEach(groups, (items) => {
+		const l = _(items).toPairs().sortBy(x => -Math.abs(x[1])).value();
+		//console.log(l)
+		_.forEach(l, ([accountName, amount]) => {
+			const amountIn = Math.max(amount, 0);
+			const amountOut = Math.min(amount, 0);
+			sumIn += amountIn;
+			sumOut += amountOut;
+			rows.push([accountName, amountIn, amountOut]);
+		});
+		rows.push([]);
+	});
+	rows.push(["Total", sumIn, sumOut]);
+
+	console.log(getTableString(rows, ["Account", "In", "Out"]));
+	console.log();
+}
+
+function reportTrialBalance(transactions, phase = 0) {
+	const title
+		= (phase === 0) ? "Unadjusted Trial Balance"
+		: (phase === 1) ? "Adjusted Trial Balance"
+		: (phase === 2) ? "Post-Closing Trial Balances"
+		: "Balance";
+	console.log(title);
+
+	const taccounts = calcTAccounts(transactions, phase);
 	const groups = { assets: {}, liabilities: {}, equity: {}, revenues: {}, expenses: {} };
 	_.forEach(taccounts, (x, accountName) => {
 		const accountPath = accountName.split(":");
@@ -315,7 +385,7 @@ function reportBalance(phase = 0) {
 function reportIncome() {
 	console.log("Income Statement for 2012");
 
-	const taccounts = calcTAccounts(accountingPhases.adjusting);
+	const taccounts = calcTAccounts(transactions, accountingPhases.adjusting);
 	console.log(JSON.stringify(taccounts, null, '\t'));
 
 	const rows = [];
@@ -332,11 +402,67 @@ function reportIncome() {
 
 	const revenues = printAndSum("Revenues", ["revenues:rental", "revenues:sales"], -1);
 	rows.push(["Total revenues", revenues]);
+	rows.push([]);
 
-	CONTINUE
+	const cors = printAndSum("Cost of Revenues", ["expenses:depreciation:equipment", "expenses:software amortization", "expenses:cost of goods sold"], -1);
+	rows.push(["Total cost of revenues", cors]);
+	const gross = revenues + cors;
+	rows.push(["Gross profit", gross]);
+	rows.push([]);
+
+	const sga = printAndSum("Period costs", ["expenses:salaries", "expenses:legal fees", "expenses:advertising", "expenses:depreciation:buildings"], -1);
+	rows.push(["Total SG&A", sga]);
+	const operatingIncome = gross + sga;
+	rows.push(["Operating income", operatingIncome]);
+	rows.push([]);
+
+	const gains = printAndSum("Secondary gains & losses", ["revenues:interest", "expenses:interest"], -1);
+	rows.push(["Total gains", gains]);
+	rows.push([]);
+
+	const ebt = operatingIncome + gains;
+	rows.push(["Pre-tax income", ebt]);
+	rows.push([]);
+
+	const tax = -630;
+	rows.push(["Income tax expense", tax]);
+	const netIncome = ebt + tax;
+	rows.push(["Net income", netIncome]);
+	rows.push([]);
 
 	console.log(getTableString(rows, ["Account", "Balance"]));
 	console.log();
+}
+
+// Report from Lecture 2.5
+function reportClosing() {
+	const taccounts = calcTAccounts(transactions, accountingPhases.adjusting);
+
+	// Generate closing transaction C2, which closes out all expenses to Retained Earnings
+	const expenses = _(taccounts).keys().filter(s => _.startsWith(s, "expenses")).sortBy(_.identity).value();
+	//console.log(JSON.stringify(expenses))
+	const pairs = expenses.map(key => [key, [{amount: -taccounts[key].sum}]]);
+	//_.forEach(pairs, x => {console.log(x)});
+	const sumExpenses = _.reduce(pairs, (acc, x) => acc + x[1][0].amount, 0);
+	const accounts = _.fromPairs(
+		[["equity:retained earnings", [{amount: -sumExpenses}]]].concat(pairs)
+	);
+	//console.log(JSON.stringify({accounts}, null, '\t'))
+	//.forEach(s => console.log(s));
+	//CONTINUE at 12:44 (add C2 transaction)
+	const c2 = {
+		"phase": "closing",
+		description: "Expenses to Retained Earnings",
+		date: "2012-12-31",
+		accounts
+	};
+	//console.log(JSON.stringify(c2, null, '\t'))
+
+	const transactions2 = _.merge({}, transactions, {"C2": c2});
+	const taccounts2 = calcTAccounts(transactions2, accountingPhases.closing);
+	//console.log(JSON.stringify(taccounts2, null, '\t'))
+
+	reportTrialBalance(transactions2, accountingPhases.closing);
 }
 
 // Report from Lecture 3.1.2
@@ -376,12 +502,14 @@ function reportCashFlows() {
 	console.log();
 }
 
-reportBalance(0);
+reportTrialBalance(transactions, 0);
 console.log();
 
-reportBalance(accountingPhases.adjusting);
+reportTrialBalance(transactions, accountingPhases.adjusting);
 console.log();
 
 reportIncome();
+
+reportClosing();
 
 //reportCashFlows();
