@@ -382,35 +382,55 @@ function reportTrialBalances(transactions) {
 		_.forEach(groups2, (group, groupName) => {
 			//console.log({groupName, group})
 			_.forEach(group, (amount, accountName) => {
-				let accountList = _.get(groups, [groupName, accountName]);
-				if (_.isUndefined(accountList))
-					accountList = new Array(phases.length);
-				accountList[i] = amount;
-				_.set(groups, [groupName, accountName], accountList);
+				let amounts = _.get(groups, [groupName, accountName]);
+				if (_.isUndefined(amounts))
+					amounts = new Array(phases.length);
+				amounts[i] = amount;
+				_.set(groups, [groupName, accountName], amounts);
 			});
 		});
 	});
 	console.log(JSON.stringify(groups, null, '\t'))
-/*
+
 	const rows = [];
-	let sumIn = 0;
-	let sumOut = 0;
-	_.forEach(groups, (items) => {
-		const l = _(items).toPairs().sortBy(x => -Math.abs(x[1])).value();
+	const sums = [
+		[0, 0],
+		[0, 0],
+		[0, 0],
+		[0, 0],
+		[0, 0]
+	];/*
+		assets: {sumIn: 0, sumOut: 0},
+		liabilities: {sumIn: 0, sumOut: 0},
+		equity: {sumIn: 0, sumOut: 0},
+		revenues: {sumIn: 0, sumOut: 0},
+		expenses: {sumIn: 0, sumOut: 0}
+	};*/
+	_.forEach(groups, (group, groupName) => {
+		//const l = _(group).toPairs().sortBy(x => -Math.abs(x[1])).value();
+		const l = _(group).toPairs().value();
 		//console.log(l)
-		_.forEach(l, ([accountName, amount]) => {
-			const amountIn = Math.max(amount, 0);
-			const amountOut = Math.min(amount, 0);
-			sumIn += amountIn;
-			sumOut += amountOut;
-			rows.push([accountName, amountIn, amountOut]);
+		_.forEach(l, ([accountName, amounts]) => {
+			const amountCols = _.flatMap(amounts, (amount, index) => {
+				if (_.isNumber(amount)) {
+					const amountIn = Math.max(amount, 0);
+					const amountOut = Math.min(amount, 0);
+					sums[index][0] += amountIn;
+					sums[index][1] += amountOut;
+					return [amountIn, amountOut];
+				}
+				else {
+					return ["", ""];
+				}
+			});
+			rows.push([accountName].concat(amountCols));
 		});
 		rows.push([]);
 	});
-	rows.push(["Total", sumIn, sumOut]);
+	rows.push(["Total"].concat(_.flatten(sums)));
 
-	console.log(getTableString(rows, ["Account", "In", "Out"]));
-	console.log();*/
+	console.log(getTableString(rows, ["Account", "In", "Out", "In", "Out", "In", "Out", "In", "Out", "In", "Out"]));
+	console.log();
 }
 
 // Report from Lecture 2.5
