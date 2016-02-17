@@ -344,12 +344,27 @@ function reportTrialBalance(transactions, phase = 0) {
 function reportTrialBalances(transactions) {
 	console.log("Trial Balances");
 
-	//CONTINUE: get taccounts for each phase, and
-	const groupsList = [];
-	for (let phase = 0; phase <= accountingPhases.closing; phase++) {
+	// Array of the min/max phases to consider
+	// This is ultimately for producing columns for:
+	// * Unadjusted Trial Balance
+	// * Adjusting Transactions
+	// * Adjusted Trial Balance
+	// * Closing Transactions
+	// * Post-Closing Trial Balance
+	const phases = [
+		[0, 0], // standard transactions
+		[accountingPhases.adjusting, accountingPhases.adjusting], // adjusting transactions
+		[0, accountingPhases.adjusting], // adjusted transactions
+		[accountingPhases.closing, accountingPhases.closing], // closing transactions
+		[0, accountingPhases.closing] // closed transactions
+	];
+	// Calculate the t-accounts for all the phases ranges in 'phases'
+	const taccountsList = phases.map(([phaseMin, phaseMax]) => calcTAccounts(transactions, phaseMax, phaseMin));
+	// Create a list of "groups" for each of the phase ranges, where transactions are groups by assets/liabilities/equity/revenues/expenses.
+	// A 'groups' item looks something like this:
+	// `{ assets: { cash: 123, equipment: 456 }, liabilities: ... }`
+	const groupsList = taccountsList.map(taccounts => {
 		const groups = { assets: {}, liabilities: {}, equity: {}, revenues: {}, expenses: {} };
-		const taccountsOne = calcTAccounts(transactions, phase, phase);
-		const taccountsAcc = calcTAccounts(transactions, phase, 0);
 		_.forEach(taccounts, (x, accountName) => {
 			const accountPath = accountName.split(":");
 			const accountName0 = accountPath[0];
@@ -357,13 +372,26 @@ function reportTrialBalances(transactions) {
 				_.setWith(groups, [accountName0, _.drop(accountPath, 1).join(":")], x.sum, Object);
 			}
 		});
-		groupsList.push(groups);
-	}
+		return groups;
+	});
 
-	CONTINUE: need to handle merging of the different phases of groupsList into rows
-
-	//console.log(JSON.stringify(groups, null, '\t'))
-
+	// Transform groupsList into a single groups object, where each category has an array of balances
+	const groups = { assets: {}, liabilities: {}, equity: {}, revenues: {}, expenses: {} };
+	_.forEach(groupsList, (groups2, i) => {
+		//console.log({i, groups2})
+		_.forEach(groups2, (group, groupName) => {
+			//console.log({groupName, group})
+			_.forEach(group, (amount, accountName) => {
+				let accountList = _.get(groups, [groupName, accountName]);
+				if (_.isUndefined(accountList))
+					accountList = new Array(phases.length);
+				accountList[i] = amount;
+				_.set(groups, [groupName, accountName], accountList);
+			});
+		});
+	});
+	console.log(JSON.stringify(groups, null, '\t'))
+/*
 	const rows = [];
 	let sumIn = 0;
 	let sumOut = 0;
@@ -382,7 +410,7 @@ function reportTrialBalances(transactions) {
 	rows.push(["Total", sumIn, sumOut]);
 
 	console.log(getTableString(rows, ["Account", "In", "Out"]));
-	console.log();
+	console.log();*/
 }
 
 // Report from Lecture 2.5
@@ -466,7 +494,7 @@ function reportClosing() {
 	const taccounts2 = calcTAccounts(transactions2, accountingPhases.closing);
 	//console.log(JSON.stringify(taccounts2, null, '\t'))
 
-	reportTrialBalance(transactions2, accountingPhases.closing);
+	reportTrialBalances(transactions2);
 }
 
 // Report from Lecture 3.1.2
