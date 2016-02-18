@@ -390,7 +390,7 @@ function reportTrialBalances(transactions) {
 			});
 		});
 	});
-	console.log(JSON.stringify(groups, null, '\t'))
+	//console.log(JSON.stringify(groups, null, '\t'))
 
 	const rows = [];
 	const sums = [
@@ -434,11 +434,12 @@ function reportTrialBalances(transactions) {
 }
 
 // Report from Lecture 2.5
+// Requires the standard and adjusting transactions
 function reportIncome() {
 	console.log("Income Statement for 2012");
 
 	const taccounts = calcTAccounts(transactions, accountingPhases.adjusting);
-	console.log(JSON.stringify(taccounts, null, '\t'));
+	//console.log(JSON.stringify(taccounts, null, '\t'));
 
 	const rows = [];
 	function printAndSum(title, accountNames, factor) {
@@ -518,6 +519,7 @@ function reportClosing() {
 }
 
 // Report from Lecture 3.1.2
+// Requires the standard transactions (e.g. no adjusting or closing transactions required)
 function reportCashFlows() {
 	console.log("Cash flows");
 
@@ -554,14 +556,10 @@ function reportCashFlows() {
 	console.log();
 }
 
-reportTrialBalance(transactions, 0);
-console.log();
-
-reportTrialBalance(transactions, accountingPhases.adjusting);
-console.log();
-
 reportIncome();
 
 reportClosing();
 
-//reportCashFlows();
+reportCashFlows();
+
+// CONTINUE: balance sheet at 14:30
