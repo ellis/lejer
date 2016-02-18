@@ -4,7 +4,7 @@
 import _ from 'lodash';
 import {getTableString} from './lib/consoleTable.js';
 
-const transactions = {
+const transactions0 = {
 	"1": {
 		data: "2012-04-01",
 		description: "Sell shares",
@@ -233,7 +233,7 @@ const transactions = {
 			"expenses:income taxes": [{amount: 630}],
 		}
 	},
-	"C1": {
+	/*"C1": {
 		phase: "closing",
 		description: "Revenues to Retained Earnings",
 		date: "2012-12-31",
@@ -260,13 +260,60 @@ const transactions = {
 			"expenses:salaries": [ { "amount": -82000 } ],
 			"expenses:software amortization": [ { "amount": -350 } ]
 		}
-	}
+	}*/
 };
 
 const accountingPhases = {
 	adjusting: 1,
 	closing: 2,
 };
+
+function addClosingTransactions(transactions) {
+	const taccounts = calcTAccounts(transactions, accountingPhases.adjusting);
+
+	// Generate closing transaction C1, which closes out all revenues to Retained Earnings
+	const c1 = (() => {
+		const expenses = _(taccounts).keys().filter(s => _.startsWith(s, "revenues")).sortBy(_.identity).value();
+		//console.log(JSON.stringify(expenses))
+		const pairs = expenses.map(key => [key, [{amount: -taccounts[key].sum}]]);
+		//_.forEach(pairs, x => {console.log(x)});
+		const sumExpenses = _.reduce(pairs, (acc, x) => acc + x[1][0].amount, 0);
+		const accounts = _.fromPairs(
+			[["equity:retained earnings", [{amount: -sumExpenses}]]].concat(pairs)
+		);
+		//console.log(JSON.stringify({accounts}, null, '\t'))
+		//_.forEach(s => console.log(s));
+		return {
+			"phase": "closing",
+			description: "Revenues to Retained Earnings",
+			date: "2012-12-31",
+			accounts
+		};
+	})();
+
+	const c2 = (() => {
+		// Generate closing transaction C2, which closes out all expenses to Retained Earnings
+		const expenses = _(taccounts).keys().filter(s => _.startsWith(s, "expenses")).sortBy(_.identity).value();
+		//console.log(JSON.stringify(expenses))
+		const pairs = expenses.map(key => [key, [{amount: -taccounts[key].sum}]]);
+		//_.forEach(pairs, x => {console.log(x)});
+		const sumExpenses = _.reduce(pairs, (acc, x) => acc + x[1][0].amount, 0);
+		const accounts = _.fromPairs(
+			[["equity:retained earnings", [{amount: -sumExpenses}]]].concat(pairs)
+		);
+		//console.log(JSON.stringify({accounts}, null, '\t'))
+		//_.forEach(s => console.log(s));
+		return {
+			"phase": "closing",
+			description: "Expenses to Retained Earnings",
+			date: "2012-12-31",
+			accounts
+		};
+	})();
+	//console.log(JSON.stringify(c2, null, '\t'))
+
+	return _.merge({}, transactions, {"C1": c1, "C2": c2});
+}
 
 function calcTAccounts(transactions, phaseMax = 0, phaseMin = 0) {
 	const taccounts = {};
@@ -435,7 +482,7 @@ function reportTrialBalances(transactions) {
 
 // Report from Lecture 2.5
 // Requires the standard and adjusting transactions
-function reportIncome() {
+function reportIncome(transactions) {
 	console.log("Income Statement for 2012");
 
 	const taccounts = calcTAccounts(transactions, accountingPhases.adjusting);
@@ -487,40 +534,19 @@ function reportIncome() {
 	console.log();
 }
 
+/*
 // Report from Lecture 2.5
-function reportClosing() {
-	const taccounts = calcTAccounts(transactions, accountingPhases.adjusting);
-
-	// Generate closing transaction C2, which closes out all expenses to Retained Earnings
-	const expenses = _(taccounts).keys().filter(s => _.startsWith(s, "expenses")).sortBy(_.identity).value();
-	//console.log(JSON.stringify(expenses))
-	const pairs = expenses.map(key => [key, [{amount: -taccounts[key].sum}]]);
-	//_.forEach(pairs, x => {console.log(x)});
-	const sumExpenses = _.reduce(pairs, (acc, x) => acc + x[1][0].amount, 0);
-	const accounts = _.fromPairs(
-		[["equity:retained earnings", [{amount: -sumExpenses}]]].concat(pairs)
-	);
-	//console.log(JSON.stringify({accounts}, null, '\t'))
-	//.forEach(s => console.log(s));
-	//CONTINUE at 12:44 (add C2 transaction)
-	const c2 = {
-		"phase": "closing",
-		description: "Expenses to Retained Earnings",
-		date: "2012-12-31",
-		accounts
-	};
-	//console.log(JSON.stringify(c2, null, '\t'))
-
-	const transactions2 = _.merge({}, transactions, {"C2": c2});
-	const taccounts2 = calcTAccounts(transactions2, accountingPhases.closing);
+function reportClosing(transactions) {
+	//const taccounts2 = calcTAccounts(transactions, accountingPhases.closing);
 	//console.log(JSON.stringify(taccounts2, null, '\t'))
 
-	reportTrialBalances(transactions2);
+	reportTrialBalances(transactions);
 }
+*/
 
 // Report from Lecture 3.1.2
 // Requires the standard transactions (e.g. no adjusting or closing transactions required)
-function reportCashFlows() {
+function reportCashFlows(transactions) {
 	console.log("Cash flows");
 
 	const bucketToCol = {
@@ -556,10 +582,70 @@ function reportCashFlows() {
 	console.log();
 }
 
-reportIncome();
+function reportBalance(transactions) {
+	console.log("Balance Sheet for 2012");
 
-reportClosing();
+	const taccounts = calcTAccounts(transactions, accountingPhases.closing);
+	//console.log(JSON.stringify(taccounts, null, '\t'));
 
-reportCashFlows();
+	// CONTINUE: balance sheet at 14:30
 
-// CONTINUE: balance sheet at 14:30
+	const rows = [];
+	function printAndSum(title, accountNames, factor) {
+		let sum = 0;
+		rows.push([title]);
+		_.forEach(accountNames, accountName => {
+			const tsum = taccounts[accountName].sum * factor;
+			rows.push(["  "+accountName, tsum]);
+			sum += tsum;
+		});
+		return sum;
+	}
+
+	const revenues = printAndSum("Revenues", ["revenues:rental", "revenues:sales"], -1);
+	rows.push(["Total revenues", revenues]);
+	rows.push([]);
+
+	const cors = printAndSum("Cost of Revenues", ["expenses:depreciation:equipment", "expenses:software amortization", "expenses:cost of goods sold"], -1);
+	rows.push(["Total cost of revenues", cors]);
+	const gross = revenues + cors;
+	rows.push(["Gross profit", gross]);
+	rows.push([]);
+
+	const sga = printAndSum("Period costs", ["expenses:salaries", "expenses:legal fees", "expenses:advertising", "expenses:depreciation:buildings"], -1);
+	rows.push(["Total SG&A", sga]);
+	const operatingIncome = gross + sga;
+	rows.push(["Operating income", operatingIncome]);
+	rows.push([]);
+
+	const gains = printAndSum("Secondary gains & losses", ["revenues:interest", "expenses:interest"], -1);
+	rows.push(["Total gains", gains]);
+	rows.push([]);
+
+	const ebt = operatingIncome + gains;
+	rows.push(["Pre-tax income", ebt]);
+	rows.push([]);
+
+	const tax = -630;
+	rows.push(["Income tax expense", tax]);
+	const netIncome = ebt + tax;
+	rows.push(["Net income", netIncome]);
+	rows.push([]);
+
+	console.log(getTableString(rows, ["Account", "Balance"]));
+	console.log();
+}
+
+const transactions = addClosingTransactions(transactions0);
+
+// Requires data from all stages (standard, adjusting, and closing transactions)
+reportTrialBalances(transactions);
+
+// Requires standard entries
+reportCashFlows(transactions);
+
+// Requires adjusting entries
+reportIncome(transactions);
+
+// Requires closing entries
+reportBalance(transactions);
