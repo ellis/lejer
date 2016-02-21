@@ -28,7 +28,7 @@ const transactions0 = {
 		accounts: {
 			"assets:cash": [{amount: 124000, bucket: "financing"}, {amount: -155000, bucket: "investing"}],
 			"liabilities:mortgage payable": [{amount: -124000}],
-			"assets:depreciable:buildings:value": [{amount: 52000}],
+			"assets:depreciable:buildings": [{amount: 52000}],
 			"assets:land": [{amount: 103000}]
 		}
 	},
@@ -38,7 +38,7 @@ const transactions0 = {
 		comment: "intended to increase building value",
 		accounts: {
 			"assets:cash": [{amount: -33000, bucket: "investing"}],
-			"assets:depreciable:buildings:value": [{amount: 33000}],
+			"assets:depreciable:buildings": [{amount: 33000}],
 		}
 	},
 	"6": {
@@ -47,7 +47,7 @@ const transactions0 = {
 		comment: "expected life of 2 years",
 		accounts: {
 			"assets:cash": [{amount: -120000, bucket: "investing"}],
-			"assets:depreciable:equipment:value": [{amount: 120000}],
+			"assets:depreciable:equipment": [{amount: 120000}],
 		}
 	},
 	"7": {
@@ -175,7 +175,7 @@ const transactions0 = {
 		description: "Depreciation on building",
 		date: "2012-12-31",
 		accounts: {
-			"assets:depreciable:buildings:depreciation": [{amount: -1500}],
+			"assets:depreciable:accumulated depreciation": [{amount: -1500}],
 			"expenses:depreciation:buildings": [{amount: 1500}]
 		}
 	},
@@ -184,7 +184,7 @@ const transactions0 = {
 		description: "Depreciation on metal detectors",
 		date: "2012-12-31",
 		accounts: {
-			"assets:depreciable:equipment:depreciation": [{amount: -30000}],
+			"assets:depreciable:accumulated depreciation": [{amount: -30000}],
 			"expenses:depreciation:equipment": [{amount: 30000}]
 		}
 	},
@@ -586,7 +586,7 @@ function reportBalance(transactions) {
 	console.log("Balance Sheet for 2012");
 
 	const taccounts = calcTAccounts(transactions, accountingPhases.closing);
-	//console.log(JSON.stringify(taccounts, null, '\t'));
+	console.log(JSON.stringify(taccounts, null, '\t'));
 
 	// CONTINUE: balance sheet at 14:30
 
@@ -595,17 +595,41 @@ function reportBalance(transactions) {
 		let sum = 0;
 		rows.push([title]);
 		_.forEach(accountNames, accountName => {
-			const tsum = taccounts[accountName].sum * factor;
-			rows.push(["  "+accountName, tsum]);
-			sum += tsum;
+			if (_.has(taccounts, [accountName, "sum"])) {
+				const tsum = taccounts[accountName].sum * factor;
+				rows.push(["  "+accountName, tsum]);
+				sum += tsum;
+			}
+			else {
+				rows.push(["  "+accountName, "???"]);
+			}
 		});
 		return sum;
 	}
 
-	const revenues = printAndSum("Revenues", ["revenues:rental", "revenues:sales"], -1);
-	rows.push(["Total revenues", revenues]);
+	const assetsCurrent = printAndSum("Current Assets", ["assets:cash", "assets:accounts receivable", "assets:notes receivable", "assets:interest receivable", "assets:inventory", "assets:prepaid advertising"], 1);
+	rows.push(["Total current assets", assetsCurrent]);
 	rows.push([]);
 
+	const assetsPPE = printAndSum("PP&E", ["assets:land", "assets:depreciable:buildings", "assets:depreciable:equipment", "assets:depreciable:accumulated depreciation"], 1);
+	rows.push(["Net PP&E", assetsPPE]);
+	rows.push([]);
+
+	const assetsIntangible = printAndSum("Intangible Assets", ["assets:prepaid software"], 1);
+	rows.push(["Total intagible assets", assetsIntangible]);
+	rows.push([]);
+
+	const assets = assetsCurrent + assetsPPE + assetsIntangible;
+	rows.push(["Total assets", assets]);
+	rows.push([]);
+
+	const liabilitiesCurrent = printAndSum("Current Liabilities", ["liabilities:accounts payable", "liabilities:interest", "liabilities:income taxes payable", "liabilities:unearned rental revenue"], 1);
+	rows.push(["Total current liabilities", liabilitiesCurrent]);
+	rows.push([]);
+
+	// CONTINUE: 15:17
+
+/*
 	const cors = printAndSum("Cost of Revenues", ["expenses:depreciation:equipment", "expenses:software amortization", "expenses:cost of goods sold"], -1);
 	rows.push(["Total cost of revenues", cors]);
 	const gross = revenues + cors;
@@ -631,7 +655,7 @@ function reportBalance(transactions) {
 	const netIncome = ebt + tax;
 	rows.push(["Net income", netIncome]);
 	rows.push([]);
-
+*/
 	console.log(getTableString(rows, ["Account", "Balance"]));
 	console.log();
 }
