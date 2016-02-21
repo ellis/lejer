@@ -41,6 +41,30 @@
 * [ ] create tests for Balance
 * [ ] create tests for Register
 
+# Reports
+
+Should be able to tag entries and individual account sub-transactions.
+A couple important tags are the `entity` tag so that we know whom to assign
+the transaction to.  Being able to assign transactions to specific periods
+for specific reports is also important.  And for convenience of being able to
+have bill and payment transactions in a single entity, we need to be able to
+set respective dates.
+
+TAG entities for my example: biz, family, family/ellis, family/dora, family/karina, family/jeromin
+
+There are various periods to set for different reports:
+
+* period/income: for cash-flow based income taxes
+* period/accrual: for accrual accounting reports
+* period/sales: for sales taxes
+* period/real: for "real" usage statistics (utilities, taxes), where bills and reimbursements may come in a following year
+
+Dates for allowing a single entity to serve as both a billing and cash transaction:
+
+* date/bill: transaction date for the bill
+* date/cash: transaction date for the cash
+
+
 # JMESPath tests
 
 ```
