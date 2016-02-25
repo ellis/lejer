@@ -1,6 +1,3 @@
-/**
- * See https://www.coursera.org/learn/wharton-accounting/lecture/3MXca/3-1-2-relic-spotter-case-part-5
- */
 import _ from 'lodash';
 import {getTableString} from './lib/consoleTable.js';
 
@@ -78,7 +75,7 @@ const transactions0 = {
 	},
 	"10": {
 		date: "2012-06-30",
-		description: "Load to Park",
+		description: "Loan to Park",
 		comment: "She has one year to repay",
 		accounts: {
 			"assets:cash": [{amount: -5000, bucket: "operating"}],
@@ -534,20 +531,15 @@ function reportIncome(transactions) {
 	console.log();
 }
 
-/*
-// Report from Lecture 2.5
-function reportClosing(transactions) {
-	//const taccounts2 = calcTAccounts(transactions, accountingPhases.closing);
-	//console.log(JSON.stringify(taccounts2, null, '\t'))
-
-	reportTrialBalances(transactions);
-}
-*/
-
-// Report from Lecture 3.1.2
-// Requires the standard transactions (e.g. no adjusting or closing transactions required)
-function reportCashFlows(transactions) {
-	console.log("Cash flows");
+/**
+ * Report from Lecture 3.1.2
+ *
+ * Requires the standard transactions (e.g. no adjusting or closing transactions required)
+ *
+ * See https://www.coursera.org/learn/wharton-accounting/lecture/3MXca/3-1-2-relic-spotter-case-part-5
+ */
+function reportCashTransactions(transactions) {
+	console.log("Cash Transactions");
 
 	const bucketToCol = {
 		operating: 3,
@@ -586,9 +578,7 @@ function reportBalance(transactions) {
 	console.log("Balance Sheet for 2012");
 
 	const taccounts = calcTAccounts(transactions, accountingPhases.closing);
-	console.log(JSON.stringify(taccounts, null, '\t'));
-
-	// CONTINUE: balance sheet at 14:30
+	//console.log(JSON.stringify(taccounts, null, '\t'));
 
 	const rows = [];
 	function printAndSum(title, accountNames, factor) {
@@ -623,41 +613,60 @@ function reportBalance(transactions) {
 	rows.push(["Total assets", assets]);
 	rows.push([]);
 
-	const liabilitiesCurrent = printAndSum("Current Liabilities", ["liabilities:accounts payable", "liabilities:interest", "liabilities:income taxes payable", "liabilities:unearned rental revenue"], 1);
+	const liabilitiesCurrent = printAndSum("Current Liabilities", ["liabilities:accounts payable", "liabilities:interest", "liabilities:income taxes payable", "liabilities:unearned rental revenue"], -1);
 	rows.push(["Total current liabilities", liabilitiesCurrent]);
 	rows.push([]);
 
-	// CONTINUE: 15:17
-
-/*
-	const cors = printAndSum("Cost of Revenues", ["expenses:depreciation:equipment", "expenses:software amortization", "expenses:cost of goods sold"], -1);
-	rows.push(["Total cost of revenues", cors]);
-	const gross = revenues + cors;
-	rows.push(["Gross profit", gross]);
+	const liabilitiesLongterm = printAndSum("Long-term Liabilities", ["liabilities:mortgage payable"], -1);
+	rows.push(["Total long-term liabilities", liabilitiesLongterm]);
 	rows.push([]);
 
-	const sga = printAndSum("Period costs", ["expenses:salaries", "expenses:legal fees", "expenses:advertising", "expenses:depreciation:buildings"], -1);
-	rows.push(["Total SG&A", sga]);
-	const operatingIncome = gross + sga;
-	rows.push(["Operating income", operatingIncome]);
+	const liabilities = liabilitiesCurrent + liabilitiesLongterm;
+	rows.push(["Total liabilities", liabilities]);
 	rows.push([]);
 
-	const gains = printAndSum("Secondary gains & losses", ["revenues:interest", "expenses:interest"], -1);
-	rows.push(["Total gains", gains]);
+	const equity = printAndSum("Shareholder's Equity", ["equity:common stock", "equity:additional paid-in capital", "equity:retained earnings"], -1);
+	rows.push(["Total shareholder's equity", equity]);
 	rows.push([]);
 
-	const ebt = operatingIncome + gains;
-	rows.push(["Pre-tax income", ebt]);
+	const rhs = liabilities + equity;
+	rows.push(["Total liabilities + shareholder's equity", rhs]);
 	rows.push([]);
 
-	const tax = -630;
-	rows.push(["Income tax expense", tax]);
-	const netIncome = ebt + tax;
-	rows.push(["Net income", netIncome]);
-	rows.push([]);
-*/
 	console.log(getTableString(rows, ["Account", "Balance"]));
 	console.log();
+}
+
+/**
+ * Report from Lecture 3.2.2
+ *
+ * Requires all entries, including closing entries.
+ *
+ * See https://www.coursera.org/learn/wharton-accounting/lecture/NVAkx/3-2-2-relic-spotter-case-part-6
+ */
+function reportCashFlows(transactions) {
+	console.log("Cash Flow Report 2012");
+
+	const rows = [];
+
+	let sum = 0;
+	_.forEach(transactions, (t, id) => {
+		_.forEach(t.accounts, (accountEntries, accountName) => {
+			_.forEach(accountEntries, accountEntry => {
+				if (accountEntry.bucket === "investing") {
+					rows.push([t.description, accountEntry.amount])
+					sum += accountEntry.amount;
+				}
+			});
+		});
+	});
+	rows.push(["Net cash from Investing Activites", sum.toFixed(0)]);
+
+	console.log("Cash Flow from Investing Activities");
+	console.log(getTableString(rows, ["Account", "Balance"]));
+	console.log();
+
+	CONTINUE
 }
 
 const transactions = addClosingTransactions(transactions0);
@@ -666,10 +675,13 @@ const transactions = addClosingTransactions(transactions0);
 reportTrialBalances(transactions);
 
 // Requires standard entries
-reportCashFlows(transactions);
+reportCashTransactions(transactions);
 
 // Requires adjusting entries
 reportIncome(transactions);
 
 // Requires closing entries
 reportBalance(transactions);
+
+// Requires closing entries
+reportCashFlows(transactions);

@@ -54,16 +54,19 @@ TAG entities for my example: biz, family, family/ellis, family/dora, family/kari
 
 There are various periods to set for different reports:
 
-* period/income: for cash-flow based income taxes
-* period/accrual: for accrual accounting reports
-* period/sales: for sales taxes
-* period/real: for "real" usage statistics (utilities, taxes), where bills and reimbursements may come in a following year
+* report/income/period or period/income: for cash-flow based income taxes
+* report/accrual/period or period/accrual: for accrual accounting reports
+* report/salestax/period or period/sales: for sales taxes
+* report/usage/period or period/real: for "real" usage statistics (utilities, taxes), where bills and reimbursements may come in a following year
 
 Dates for allowing a single entity to serve as both a billing and cash transaction:
 
 * date/bill: transaction date for the bill
 * date/cash: transaction date for the cash
 
+For business cash transactions, we need know whether it was operating, investing, or financing:
+
+* report/cash/category
 
 # JMESPath tests
 
