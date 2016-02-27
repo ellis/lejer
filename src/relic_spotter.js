@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import {Map, fromJS} from 'immutable';
 import {getTableString} from './lib/consoleTable.js';
 
 const transactions0 = {
@@ -230,34 +231,6 @@ const transactions0 = {
 			"expenses:income taxes": [{amount: 630}],
 		}
 	},
-	/*"C1": {
-		phase: "closing",
-		description: "Revenues to Retained Earnings",
-		date: "2012-12-31",
-		accounts: {
-			"equity:retained earnings": [{amount: -159650}],
-			"revenues:sales": [{amount: 35000}],
-			"revenues:rental": [{amount: 124400}],
-			"revenues:interest": [{amount: 250}]
-		}
-	},
-	"C2": {
-		"phase": "closing",
-		description: "Expenses to Retained Earnings",
-		date: "2012-12-31",
-		"accounts": {
-			"equity:retained earnings": [{amount: 159650}],
-			"expenses:advertising": [ { "amount": -4000 } ],
-			"expenses:cost of goods sold": [ { "amount": -30000 } ],
-			"expenses:depreciation:buildings": [ { "amount": -1500 } ],
-			"expenses:depreciation:equipment": [ { "amount": -30000 } ],
-			"expenses:income taxes": [ { "amount": -630 } ],
-			"expenses:interest": [ { "amount": -4900 } ],
-			"expenses:legal fees": [ { "amount": -3900 } ],
-			"expenses:salaries": [ { "amount": -82000 } ],
-			"expenses:software amortization": [ { "amount": -350 } ]
-		}
-	}*/
 };
 
 const accountingPhases = {
@@ -310,6 +283,32 @@ function addClosingTransactions(transactions) {
 	//console.log(JSON.stringify(c2, null, '\t'))
 
 	return _.merge({}, transactions, {"C1": c1, "C2": c2});
+}
+
+class StateWrapper {
+	constructor(state = Map()) {
+		this.state = state;
+	}
+
+	addTransaction(id, t) {
+		const tPhase = _.get(accountingPhases, t.phase, 0);
+		_.forEach(t.accounts, (accountEntries, accountName) => {
+			CONTINUE
+			const x = this.state.getIn(["taccounts", , [accountName], {items: {}, sumOut: 0, sumIn: 0, sum: 0});
+			_.forEach(accountEntries, accountEntry => {
+				const amount = accountEntry.amount || 0;
+				if (amount < 0) {
+					x.sumOut += amount;
+				}
+				else if (amount > 0) {
+					x.sumIn += amount;
+				}
+				x.sum += amount;
+				x.items[id] = amount;
+			});
+			_.set(taccounts, [accountName], x);
+		});
+	}
 }
 
 function calcTAccounts(transactions, phaseMax = 0, phaseMin = 0) {
@@ -647,9 +646,12 @@ function reportBalance(transactions) {
 function reportCashFlows(transactions) {
 	console.log("Cash Flow Report 2012");
 
-	const rows = [];
+	let rows;
+	let sum;
 
-	let sum = 0;
+	// Investing Activities
+	rows = [];
+	sum = 0;
 	_.forEach(transactions, (t, id) => {
 		_.forEach(t.accounts, (accountEntries, accountName) => {
 			_.forEach(accountEntries, accountEntry => {
@@ -666,7 +668,45 @@ function reportCashFlows(transactions) {
 	console.log(getTableString(rows, ["Account", "Balance"]));
 	console.log();
 
-	CONTINUE
+	// Financing Activities
+	rows = [];
+	sum = 0;
+	_.forEach(transactions, (t, id) => {
+		_.forEach(t.accounts, (accountEntries, accountName) => {
+			_.forEach(accountEntries, accountEntry => {
+				if (accountEntry.bucket === "financing") {
+					rows.push([t.description, accountEntry.amount])
+					sum += accountEntry.amount;
+				}
+			});
+		});
+	});
+	rows.push(["Net cash from Financing Activites", sum.toFixed(0)]);
+
+	console.log("Cash Flow from Financing Activities");
+	console.log(getTableString(rows, ["Account", "Balance"]));
+	console.log();
+
+	// Operating Activities, Direct Method
+	rows = [];
+	sum = 0;
+	_.forEach(transactions, (t, id) => {
+		_.forEach(t.accounts, (accountEntries, accountName) => {
+			_.forEach(accountEntries, accountEntry => {
+				if (accountEntry.bucket === "operating") {
+					rows.push([t.description, accountEntry.amount])
+					sum += accountEntry.amount;
+				}
+			});
+		});
+	});
+	rows.push(["Net cash from Operating Activites, Direct Method", sum.toFixed(0)]);
+
+	console.log("Cash Flow from Operating Activities");
+	console.log(getTableString(rows, ["Account", "Balance"]));
+	console.log();
+
+	//CONTINUE 3.2.2 7:47
 }
 
 const transactions = addClosingTransactions(transactions0);
