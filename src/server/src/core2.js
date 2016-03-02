@@ -1,10 +1,11 @@
 import _ from 'lodash';
-import { List, Map } from 'immutable';
+import { List, Map, fromJS } from 'immutable';
 
 export const INITIAL_STATE = Map();
 
 export function mergeTransaction(state, basename, entryId, t) {
-	state = state.mergeDeepIn(["transactions", basename, entryId.toString()], t);
+	entryId = entryId.toString();
+	state = state.mergeDeepIn(["transactions", basename, entryId], fromJS(t));
 
 	const phase = _.get(t, "phase", "unadjusted");
 	_.forEach(t.accounts, (accountEntries, accountName) => {

@@ -7,7 +7,7 @@ const t01 = {
 	data: "2012-04-01",
 	description: "Sell shares",
 	accounts: {
-		"assets:cash": [{amount: 250000, bucket: "financing"}],
+		"assets:cash": [{amount: 250000, tags: {"report/cash/activity": "financing"}}],
 		"equity:common stock": [{amount: -25000}],
 		"equity:additional paid-in capital": [{amount: -225000}],
 	}
@@ -28,7 +28,7 @@ describe.only('core logic', () => {
 							"data": "2012-04-01",
 							"description": "Sell shares",
 							"accounts": {
-								"assets:cash": [ { "amount": 250000, "bucket": "financing" } ],
+								"assets:cash": [ { "amount": 250000, tags: {"report/cash/activity": "financing"} } ],
 								"equity:common stock": [ { "amount": -25000 } ],
 								"equity:additional paid-in capital": [ { "amount": -225000 } ]
 							}
