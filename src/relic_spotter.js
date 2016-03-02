@@ -304,7 +304,7 @@ class StateWrapper {
 				this.state = this.state.updateIn(["accountEntries", accountName, phase, sumInOut], 0, n => n + amount);
 
 				// Add cash transaction to cashTransactionEntries
-				
+
 			});
 		});
 	}

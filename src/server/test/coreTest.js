@@ -18,12 +18,38 @@ describe.only('core logic', () => {
 	describe('mergeTransaction', () => {
 
 		it('merges the transaction into state', () => {
-			const state = Map();
-			const nextState = mergeTransaction(state, "RelicSpotter", 1, t01);
-			expect(nextState).to.equal(fromJS({
-				transactions: {
-					RelicSpotter: {
-						"1": t01
+			const state0 = Map();
+			const state = mergeTransaction(state0, "RelicSpotter", 1, t01);
+			console.log(JSON.stringify(state, null, '\t'))
+			expect(state).to.equal(fromJS({
+				"transactions": {
+					"RelicSpotter": {
+						"1": {
+							"data": "2012-04-01",
+							"description": "Sell shares",
+							"accounts": {
+								"assets:cash": [ { "amount": 250000, "bucket": "financing" } ],
+								"equity:common stock": [ { "amount": -25000 } ],
+								"equity:additional paid-in capital": [ { "amount": -225000 } ]
+							}
+						}
+					}
+				},
+				"accountEntries": {
+					"assets:cash": {
+						"unadjusted": {
+							"entries": { "1": 250000 }, "sum": 250000, "sumIn": 250000
+						}
+					},
+					"equity:common stock": {
+						"unadjusted": {
+							"entries": { "1": -25000 }, "sum": -25000, "sumOut": -25000
+						}
+					},
+					"equity:additional paid-in capital": {
+						"unadjusted": {
+							"entries": { "1": -225000 }, "sum": -225000, "sumOut": -225000
+						}
 					}
 				}
 			}));
