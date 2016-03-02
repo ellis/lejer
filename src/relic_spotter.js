@@ -292,21 +292,20 @@ class StateWrapper {
 
 	addTransaction(id, t) {
 		const tPhase = _.get(accountingPhases, t.phase, 0);
+		const phase = _.get(t, "phase", "unadjusted");
 		_.forEach(t.accounts, (accountEntries, accountName) => {
-			CONTINUE
-			const x = this.state.getIn(["taccounts", , [accountName], {items: {}, sumOut: 0, sumIn: 0, sum: 0});
 			_.forEach(accountEntries, accountEntry => {
 				const amount = accountEntry.amount || 0;
-				if (amount < 0) {
-					x.sumOut += amount;
-				}
-				else if (amount > 0) {
-					x.sumIn += amount;
-				}
-				x.sum += amount;
-				x.items[id] = amount;
+
+				// Add transaction to accountEntries
+				this.state = this.state.updateIn(["accountEntries", accountName, phase, "entries"], Map(), m => m.set(id, amount));
+				this.state = this.state.updateIn(["accountEntries", accountName, phase, "sum"], 0, n => n + amount);
+				const sumInOut = (amount < 0) ? "sumOut" : "sumIn";
+				this.state = this.state.updateIn(["accountEntries", accountName, phase, sumInOut], 0, n => n + amount);
+
+				// Add cash transaction to cashTransactionEntries
+				
 			});
-			_.set(taccounts, [accountName], x);
 		});
 	}
 }
