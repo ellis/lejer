@@ -3,6 +3,19 @@ import { List, Map, fromJS } from 'immutable';
 
 export const INITIAL_STATE = Map();
 
+/*
+ * Transaction
+ * - date: string - ISO datetime
+ * - id: string - an optional unique ID
+ * - description: string - optional
+ * - details: string - optional additional details for personal notes
+ * - tags: object - optional Tags map from tag to value
+ * - accounts: object - Map from account name to AccountEntry
+ *
+ * AccountEntry:
+ * - amount: Amount
+ * - tags: Tags map, string -> any
+ */
 export function mergeTransaction(state, basename, entryId, t) {
 	entryId = entryId.toString();
 	state = state.mergeDeepIn(["transactions", basename, entryId], fromJS(t));
@@ -19,7 +32,12 @@ export function mergeTransaction(state, basename, entryId, t) {
 			state = state.updateIn(["accountEntries", accountName, phase, sumInOut], 0, n => n + amount);
 
 			// Add cash transaction to cashTransactionEntries
-
+			const cashActivity = _.get(accountEntry, ["tags", "reports/cash/activity"]);
+			if (cashActivity) {
+				state = state.updateIn(["reports", "cash"], List(), l => {
+					return l.push(fromJS(_.merge({}, {date: t.date, id: t.id, cash: amount, [cashActivity]: amount})));
+				});
+			}
 		});
 	});
 
