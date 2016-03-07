@@ -1,46 +1,49 @@
+import _ from 'lodash';
 import {List, Map, fromJS} from 'immutable';
 import {expect} from 'chai';
 
 import {mergeTransaction} from '../src/core2.js';
 
-const t01 = {
-	id: "01",
-	date: "2012-04-01",
-	description: "Sell shares",
-	accounts: {
-		"assets:current:cash": [{amount: 250000, tags: {"reports/cash/activity": "financing"}}],
-		"equity:common stock": [{amount: -25000}],
-		"equity:additional paid-in capital": [{amount: -225000}],
-	}
-};
-const t03 = {
-	id: "03",
-	data: "2012-04-02",
-	description: "Legal fees",
-	accounts: {
-		"assets:current:cash": [{amount: -3900, tags: {"reports/cash/activity": "operating"}}],
-		"expenses:period:legal fees": [{amount: 3900}]
-	}
-};
-const t21 = {
-	id: "21",
-	transactionType: "adjusting",
-	description: "Accrued interest",
-	date: "2012-12-31",
-	accounts: {
-		"liabilities:current:interest": [{amount: -4900}],
-		"expenses:secondary:interest": [{amount: 4900}]
+const RelicSpotter = {
+	"01": {
+		id: "01",
+		date: "2012-04-01",
+		description: "Sell shares",
+		accounts: {
+			"assets:current:cash": [{amount: 250000, tags: {"reports/cash/activity": "financing"}}],
+			"equity:common stock": [{amount: -25000}],
+			"equity:additional paid-in capital": [{amount: -225000}],
+		}
+	},
+	"03": {
+		id: "03",
+		date: "2012-04-02",
+		description: "Legal fees",
+		accounts: {
+			"assets:current:cash": [{amount: -3900, tags: {"reports/cash/activity": "operating"}}],
+			"expenses:period:legal fees": [{amount: 3900}]
+		}
+	},
+	"21": {
+		id: "21",
+		transactionType: "adjusting",
+		description: "Accrued interest",
+		date: "2012-12-31",
+		accounts: {
+			"liabilities:current:interest": [{amount: -4900}],
+			"expenses:secondary:interest": [{amount: 4900}]
+		}
 	}
 };
 
-describe.only('core logic', () => {
+describe('core logic', () => {
 
 	describe('mergeTransaction', () => {
 
-		it('merges a transaction into state', () => {
+		it('merges transaction 01 into state', () => {
 			const state0 = Map();
 			const state = mergeTransaction(state0, "RelicSpotter", 1, t01);
-			console.log(JSON.stringify(state, null, '\t'))
+			// console.log(JSON.stringify(state, null, '\t'))
 			expect(state).to.equal(fromJS({
 				"transactions": {
 					"RelicSpotter": {
@@ -67,6 +70,50 @@ describe.only('core logic', () => {
 				}
 			}));
 		});
+
+		it.only('merges transaction 03 into state', () => {
+			const ids = ["01", "03"];
+			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
+			console.log(JSON.stringify(state, null, '\t'))
+			expect(state).to.equal(fromJS({
+				"transactions": {
+					"RelicSpotter": _.pick(RelicSpotter, ids)
+				},
+				"accountEntries": {
+					"assets:current:cash": {
+						"unadjusted": { "entries": { "01": 250000, "03": -3900 }, "sum": 246100, "sumIn": 250000, "sumOut": -3900 }
+					},
+					"equity:common stock": {
+						"unadjusted": { "entries": { "01": -25000 }, "sum": -25000, "sumOut": -25000 }
+					},
+					"equity:additional paid-in capital": {
+						"unadjusted": { "entries": { "01": -225000 }, "sum": -225000, "sumOut": -225000 }
+					},
+					"expenses:period:legal fees": {
+						"unadjusted": { "entries": { "03": 3900 }, "sum": 3900, "sumIn": 3900 }
+					}
+				},
+				"reports": {
+					"cash": {
+						"2012": [
+							{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
+							{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 }
+						]
+					},
+					"income": {
+						"2012": {
+							"period expenses": {
+								"accounts": {
+									"legal fees": -3900
+								},
+								"total": -3900
+							}
+						}
+					}
+				}
+			}));
+		});
+
 	});
 
 });

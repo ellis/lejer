@@ -4,7 +4,7 @@ import {getTableString} from './lib/consoleTable.js';
 
 const transactions0 = {
 	"1": {
-		data: "2012-04-01",
+		date: "2012-04-01",
 		description: "Sell shares",
 		accounts: {
 			"assets:cash": [{amount: 250000, bucket: "financing"}],
@@ -13,7 +13,7 @@ const transactions0 = {
 		}
 	},
 	"3": {
-		data: "2012-04-02",
+		date: "2012-04-02",
 		description: "Legal fees",
 		accounts: {
 			"assets:cash": [{amount: -3900, bucket: "operating"}],
@@ -21,7 +21,7 @@ const transactions0 = {
 		}
 	},
 	"4": {
-		data: "2012-04-07",
+		date: "2012-04-07",
 		description: "Buy building and land",
 		accounts: {
 			"assets:cash": [{amount: 124000, bucket: "financing"}, {amount: -155000, bucket: "investing"}],
@@ -31,7 +31,7 @@ const transactions0 = {
 		}
 	},
 	"5": {
-		data: "2012-05-25",
+		date: "2012-05-25",
 		description: "Building renovation",
 		comment: "intended to increase building value",
 		accounts: {
