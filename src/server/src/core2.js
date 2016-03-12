@@ -72,33 +72,59 @@ function addTransactionToReportCash(state, t) {
 
 function addTransactionToReportIncome(state, t) {
 	const date0 = _.get(t, ["tags", "report/income/date"], t.date);
-	console.log({tdate: t.date, date0})
+	// console.log({tdate: t.date, date0})
 
 	_.forEach(t.accounts, (accountEntries, accountName) => {
 		_.forEach(accountEntries, accountEntry => {
 			const amount = accountEntry.amount || 0;
 			const date = _.get(accountEntry, ["tags", "report/income/date"], date0);
-			console.log({amount, date})
+			// console.log({amount, date})
 			if (!amount || !date) {
 				return;
 			}
 
 			const period = moment(date).year().toString();
+			let report = state.getIn(["reports", "income", period], Map());
 			const accountPath = accountName.split(":");
-			console.log({accountPath})
-			if (_.isEqual(["revenues", "operating"], _.take(accountPath, 2))) {
+			// console.log({accountPath})
+			if (_.isEqual(["revenues", "primary"], _.take(accountPath, 2))) {
 				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
-				state = state
-					.updateIn(["reports", "income", period, "revenues", "accounts", accountName2], 0, n => n + -amount)
-					.updateIn(["reports", "income", period, "revenues", "total"], 0, n => n + -amount);
+				report = report
+					.updateIn(["revenues", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["revenues", "total"], 0, n => n + -amount);
+			}
+			else if (_.isEqual(["expenses", "primary"], _.take(accountPath, 2))) {
+				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
+				report = report
+					.updateIn(["costOfRevenues", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["costOfRevenues", "total"], 0, n => n + -amount);
 			}
 			else if (_.isEqual(["expenses", "period"], _.take(accountPath, 2))) {
-				console.log("PERIOD")
 				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
-				state = state
-					.updateIn(["reports", "income", period, "period expenses", "accounts", accountName2], 0, n => n + -amount)
-					.updateIn(["reports", "income", period, "period expenses", "total"], 0, n => n + -amount);
+				report = report
+					.updateIn(["periodExpenses", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["periodExpenses", "total"], 0, n => n + -amount);
 			}
+			else if (_.isEqual(["revenues", "secondary"], _.take(accountPath, 2))) {
+				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
+				report = report
+					.updateIn(["secondaryGains", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["secondaryGains", "total"], 0, n => n + -amount);
+			}
+			else if (_.isEqual(["expenses", "secondary"], _.take(accountPath, 2))) {
+				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
+				report = report
+					.updateIn(["secondaryLosses", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["secondaryLosses", "total"], 0, n => n + -amount);
+			}
+			else if (_.isEqual(["expenses", "income tax"], _.take(accountPath, 2))) {
+				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
+				report = report
+					.updateIn(["incomeTax", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["incomeTax", "total"], 0, n => n + -amount);
+			}
+
+			state = state.setIn(["reports", "income", period], report);
 		});
 	});
 

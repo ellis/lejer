@@ -50,13 +50,13 @@ describe('core logic', () => {
 				},
 				"accountEntries": {
 					"assets:current:cash": {
-						"unadjusted": { "entries": { "1": 250000 }, "sum": 250000, "sumIn": 250000 }
+						"unadjusted": { "entries": { "01": 250000 }, "sum": 250000, "sumIn": 250000 }
 					},
 					"equity:common stock": {
-						"unadjusted": { "entries": { "1": -25000 }, "sum": -25000, "sumOut": -25000 }
+						"unadjusted": { "entries": { "01": -25000 }, "sum": -25000, "sumOut": -25000 }
 					},
 					"equity:additional paid-in capital": {
-						"unadjusted": { "entries": { "1": -225000 }, "sum": -225000, "sumOut": -225000 }
+						"unadjusted": { "entries": { "01": -225000 }, "sum": -225000, "sumOut": -225000 }
 					}
 				},
 				"reports": {
@@ -64,12 +64,15 @@ describe('core logic', () => {
 						"2012": [
 							{ "id": "01", "date": "2012-04-01", "cash": 250000, "financing": 250000 }
 						]
+					},
+					"income": {
+						"2012": {}
 					}
 				}
 			});
 		});
 
-		it.only('merges transaction 03 into state', () => {
+		it('merges transaction 03 into state', () => {
 			const ids = ["01", "03"];
 			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
 			// console.log(JSON.stringify(state, null, '\t'))
@@ -100,7 +103,7 @@ describe('core logic', () => {
 					},
 					"income": {
 						"2012": {
-							"period expenses": {
+							"periodExpenses": {
 								"accounts": {
 									"legal fees": -3900
 								},
