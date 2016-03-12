@@ -41,14 +41,12 @@ describe('core logic', () => {
 	describe('mergeTransaction', () => {
 
 		it('merges transaction 01 into state', () => {
-			const state0 = Map();
-			const state = mergeTransaction(state0, "RelicSpotter", 1, t01);
+			const ids = ["01"];
+			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
 			// console.log(JSON.stringify(state, null, '\t'))
-			expect(state).to.equal(fromJS({
+			expect(state.toJS()).to.deep.equal({
 				"transactions": {
-					"RelicSpotter": {
-						"1": t01
-					}
+					"RelicSpotter": _.pick(RelicSpotter, ids)
 				},
 				"accountEntries": {
 					"assets:current:cash": {
@@ -68,14 +66,14 @@ describe('core logic', () => {
 						]
 					}
 				}
-			}));
+			});
 		});
 
 		it.only('merges transaction 03 into state', () => {
 			const ids = ["01", "03"];
 			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
-			console.log(JSON.stringify(state, null, '\t'))
-			expect(state).to.equal(fromJS({
+			// console.log(JSON.stringify(state, null, '\t'))
+			expect(state.toJS()).to.deep.equal({
 				"transactions": {
 					"RelicSpotter": _.pick(RelicSpotter, ids)
 				},
@@ -111,7 +109,7 @@ describe('core logic', () => {
 						}
 					}
 				}
-			}));
+			});
 		});
 
 	});
