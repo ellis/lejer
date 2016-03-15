@@ -27,7 +27,7 @@ export function mergeTransaction(state, basename, entryId, t) {
 			const amount = accountEntry.amount || 0;
 
 			// Add transaction to accountEntries
-			state = state.updateIn(["accountEntries", accountName, phase, "entries"], Map(), m => m.set(entryId, amount));
+			state = state.updateIn(["accountEntries", accountName, phase, "entries", entryId], 0, n => n + amount);
 			state = state.updateIn(["accountEntries", accountName, phase, "sum"], 0, n => n + amount);
 			const sumInOut = (amount < 0) ? "sumOut" : "sumIn";
 			state = state.updateIn(["accountEntries", accountName, phase, sumInOut], 0, n => n + amount);
