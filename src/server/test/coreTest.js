@@ -35,6 +35,150 @@ const RelicSpotter = {
 			"assets:long-term:land": [{amount: 103000}]
 		}
 	},
+	"05": {
+		id: "05",
+		date: "2012-05-25",
+		description: "Building renovation",
+		comment: "intended to increase building value",
+		accounts: {
+			"assets:current:cash": [{amount: -33000, tags: {"reports/cash/activity": "investing"}}],
+			"assets:long-term:buildings": [{amount: 33000}],
+		}
+	},
+	"06": {
+		id: "06",
+		date: "2012-06-02",
+		description: "Buy metal detectors",
+		comment: "expected life of 2 years",
+		accounts: {
+			"assets:current:cash": [{amount: -120000, tags: {"reports/cash/activity": "investing"}}],
+			"assets:long-term:equipment": [{amount: 120000}],
+		}
+	},
+	"07": {
+		id: "07",
+		date: "2012-06-30",
+		description: "Buy sundries",
+		accounts: {
+			"assets:current:inventory": [{amount: 2000}],
+			"liabilities:current:accounts payable": [{amount: -2000}],
+		}
+	},
+	"08": {
+		id: "08",
+		date: "2012-06-30",
+		description: "Pay for software site license",
+		comment: "three year software license",
+		accounts: {
+			"assets:current:cash": [{amount: -2100, tags: {"reports/cash/activity": "investing"}],
+			"assets:intangible:prepaid software": [{amount: 2100}],
+		}
+	},
+	"09": {
+		id: "09",
+		date: "2012-06-30",
+		description: "Buy advertising",
+		comment: "prepay for 1 year",
+		accounts: {
+			"assets:current:cash": [{amount: -8000, tags: {"reports/cash/activity": "operating"}],
+			"assets:current:prepaid advertising": [{amount: 8000}],
+		}
+	},
+	"10": {
+		id: "10",
+		date: "2012-06-30",
+		description: "Loan to Park",
+		comment: "She has one year to repay",
+		accounts: {
+			"assets:current:cash": [{amount: -5000, tags: {"reports/cash/activity": "operating"}],
+			"assets:current:notes receivable": [{amount: 5000}]
+		}
+	},
+	"12": {
+		id: "12",
+		date: "2012-06-30",
+		description: "Declare dividends",
+		accounts: {
+			"equity:retained earnings": [{amount: 2500}],
+			"liabilities:current:dividends payable": [{amount: -2500}]
+		}
+	},
+	"13": {
+		id: "13",
+		date: "2012-07-31",
+		description: "Pay supplier",
+		comment: "Pay for inventory bought in transaction 7",
+		accounts: {
+			"assets:current:cash": [{amount: -2000, tags: {"reports/cash/activity": "operating"}],
+			"liabilities:current:accounts payable": [{amount: 2000}],
+		}
+	},
+	"14": {
+		id: "14",
+		date: "2012-08-31",
+		description: "Pay dividend",
+		accounts: {
+			"assets:current:cash": [{amount: -2500, tags: {"reports/cash/activity": "financing"}],
+			"liabilities:current:dividends payable": [{amount: 2500}],
+		}
+	},
+	"15": {
+		id: "15",
+		date: "2012-12-01",
+		description: "Sell pre-paid rentals",
+		comment: "received pre-paid rentals for following year",
+		accounts: {
+			"assets:current:cash": [{amount: 1200, tags: {"reports/cash/activity": "operating"}],
+			"liabilities:current:unearned rental revenue": [{amount: -1200}],
+		}
+	},
+	"16": {
+		id: "16",
+		date: "2012-12-31",
+		description: "Receive rental revenue",
+		accounts: {
+			"assets:current:cash": [{amount: 120100, tags: {"reports/cash/activity": "operating"}],
+			"assets:current:accounts receivable": [{amount: 4200}],
+			"revenues:primary:rental": [{amount: -124300}],
+		}
+	},
+	"17": {
+		id: "17",
+		date: "2012-12-31",
+		description: "Pay for inventory",
+		accounts: {
+			"assets:current:cash": [{amount: -38000, tags: {"reports/cash/activity": "operating"}],
+			"liabilities:current:accounts payable": [{amount: -2000}],
+			"assets:current:inventory": [{amount: 40000}],
+		}
+	},
+	"18": {
+		id: "18",
+		date: "2012-12-31",
+		description: "Sales of sundries",
+		accounts: {
+			"assets:current:cash": [{amount: 35000, tags: {"reports/cash/activity": "operating"}],
+			"revenues:primary:sales": [{amount: -35000}],
+		}
+	},
+	"19": {
+		id: "19",
+		description: "Cost of sundries sold",
+		date: "2012-12-31",
+		accounts: {
+			"assets:current:inventory": [{amount: -30000}],
+			"expenses:primary:cost of goods sold": [{amount: 30000}],
+		}
+	},
+	"20": {
+		id: "20",
+		description: "Pay salaries",
+		date: "2012-12-31",
+		accounts: {
+			"assets:current:cash": [{amount: -82000, tags: {"reports/cash/activity": "operating"}],
+			"expenses:period:salaries": [{amount: 82000}],
+		}
+	},
 	"21": {
 		id: "21",
 		transactionType: "adjusting",
@@ -45,6 +189,69 @@ const RelicSpotter = {
 			"expenses:secondary:interest": [{amount: 4900}]
 		}
 	}
+	"22": {
+		phase: "adjusting",
+		description: "Depreciation on building",
+		date: "2012-12-31",
+		accounts: {
+			"assets:depreciable:accumulated depreciation": [{amount: -1500}],
+			"expenses:depreciation:buildings": [{amount: 1500}]
+		}
+	},
+	"23": {
+		phase: "adjusting",
+		description: "Depreciation on metal detectors",
+		date: "2012-12-31",
+		accounts: {
+			"assets:depreciable:accumulated depreciation": [{amount: -30000}],
+			"expenses:depreciation:equipment": [{amount: 30000}]
+		}
+	},
+	"24": {
+		phase: "adjusting",
+		description: "Amortization on software license, see #8",
+		date: "2012-12-31",
+		accounts: {
+			"assets:prepaid software": [{amount: -350}],
+			"expenses:software amortization": [{amount: 350}]
+		}
+	},
+	"25": {
+		phase: "adjusting",
+		description: "Expense prepaid advertising, see #9",
+		date: "2012-12-31",
+		accounts: {
+			"assets:prepaid advertising": [{amount: -4000}],
+			"expenses:advertising": [{amount: 4000}]
+		}
+	},
+	"26": {
+		phase: "adjusting",
+		description: "Accumulated interest receivable, see #10",
+		date: "2012-12-31",
+		accounts: {
+			"revenues:interest": [{amount: -250}],
+			"assets:interest receivable": [{amount: 250}]
+		}
+	},
+	"27": {
+		phase: "adjusting",
+		description: "Earning of unearned revenues, see #15",
+		date: "2012-12-31",
+		accounts: {
+			"revenues:rental": [{amount: -100}],
+			"liabilities:unearned rental revenue": [{amount: 100}]
+		}
+	},
+	"28": {
+		phase: "adjusting",
+		description: "Estimated income taxes",
+		date: "2012-12-31",
+		accounts: {
+			"liabilities:income taxes payable": [{amount: -630}],
+			"expenses:income taxes": [{amount: 630}],
+		}
+	},
 };
 
 describe('core logic', () => {
