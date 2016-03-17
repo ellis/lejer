@@ -70,7 +70,7 @@ const RelicSpotter = {
 		description: "Pay for software site license",
 		comment: "three year software license",
 		accounts: {
-			"assets:current:cash": [{amount: -2100, tags: {"reports/cash/activity": "investing"}],
+			"assets:current:cash": [{amount: -2100, tags: {"reports/cash/activity": "investing"}}],
 			"assets:intangible:prepaid software": [{amount: 2100}],
 		}
 	},
@@ -80,7 +80,7 @@ const RelicSpotter = {
 		description: "Buy advertising",
 		comment: "prepay for 1 year",
 		accounts: {
-			"assets:current:cash": [{amount: -8000, tags: {"reports/cash/activity": "operating"}],
+			"assets:current:cash": [{amount: -8000, tags: {"reports/cash/activity": "operating"}}],
 			"assets:current:prepaid advertising": [{amount: 8000}],
 		}
 	},
@@ -90,7 +90,7 @@ const RelicSpotter = {
 		description: "Loan to Park",
 		comment: "She has one year to repay",
 		accounts: {
-			"assets:current:cash": [{amount: -5000, tags: {"reports/cash/activity": "operating"}],
+			"assets:current:cash": [{amount: -5000, tags: {"reports/cash/activity": "operating"}}],
 			"assets:current:notes receivable": [{amount: 5000}]
 		}
 	},
@@ -109,7 +109,7 @@ const RelicSpotter = {
 		description: "Pay supplier",
 		comment: "Pay for inventory bought in transaction 7",
 		accounts: {
-			"assets:current:cash": [{amount: -2000, tags: {"reports/cash/activity": "operating"}],
+			"assets:current:cash": [{amount: -2000, tags: {"reports/cash/activity": "operating"}}],
 			"liabilities:current:accounts payable": [{amount: 2000}],
 		}
 	},
@@ -118,7 +118,7 @@ const RelicSpotter = {
 		date: "2012-08-31",
 		description: "Pay dividend",
 		accounts: {
-			"assets:current:cash": [{amount: -2500, tags: {"reports/cash/activity": "financing"}],
+			"assets:current:cash": [{amount: -2500, tags: {"reports/cash/activity": "financing"}}],
 			"liabilities:current:dividends payable": [{amount: 2500}],
 		}
 	},
@@ -128,7 +128,7 @@ const RelicSpotter = {
 		description: "Sell pre-paid rentals",
 		comment: "received pre-paid rentals for following year",
 		accounts: {
-			"assets:current:cash": [{amount: 1200, tags: {"reports/cash/activity": "operating"}],
+			"assets:current:cash": [{amount: 1200, tags: {"reports/cash/activity": "operating"}}],
 			"liabilities:current:unearned rental revenue": [{amount: -1200}],
 		}
 	},
@@ -137,7 +137,7 @@ const RelicSpotter = {
 		date: "2012-12-31",
 		description: "Receive rental revenue",
 		accounts: {
-			"assets:current:cash": [{amount: 120100, tags: {"reports/cash/activity": "operating"}],
+			"assets:current:cash": [{amount: 120100, tags: {"reports/cash/activity": "operating"}}],
 			"assets:current:accounts receivable": [{amount: 4200}],
 			"revenues:primary:rental": [{amount: -124300}],
 		}
@@ -147,7 +147,7 @@ const RelicSpotter = {
 		date: "2012-12-31",
 		description: "Pay for inventory",
 		accounts: {
-			"assets:current:cash": [{amount: -38000, tags: {"reports/cash/activity": "operating"}],
+			"assets:current:cash": [{amount: -38000, tags: {"reports/cash/activity": "operating"}}],
 			"liabilities:current:accounts payable": [{amount: -2000}],
 			"assets:current:inventory": [{amount: 40000}],
 		}
@@ -157,7 +157,7 @@ const RelicSpotter = {
 		date: "2012-12-31",
 		description: "Sales of sundries",
 		accounts: {
-			"assets:current:cash": [{amount: 35000, tags: {"reports/cash/activity": "operating"}],
+			"assets:current:cash": [{amount: 35000, tags: {"reports/cash/activity": "operating"}}],
 			"revenues:primary:sales": [{amount: -35000}],
 		}
 	},
@@ -175,7 +175,7 @@ const RelicSpotter = {
 		description: "Pay salaries",
 		date: "2012-12-31",
 		accounts: {
-			"assets:current:cash": [{amount: -82000, tags: {"reports/cash/activity": "operating"}],
+			"assets:current:cash": [{amount: -82000, tags: {"reports/cash/activity": "operating"}}],
 			"expenses:period:salaries": [{amount: 82000}],
 		}
 	},
@@ -188,7 +188,7 @@ const RelicSpotter = {
 			"liabilities:current:interest": [{amount: -4900}],
 			"expenses:secondary:interest": [{amount: 4900}]
 		}
-	}
+	},
 	"22": {
 		phase: "adjusting",
 		description: "Depreciation on building",
@@ -341,6 +341,58 @@ describe('core logic', () => {
 				"transactions": {
 					"RelicSpotter": _.pick(RelicSpotter, ids)
 				},
+				"accountEntries": {
+					"assets:current:cash": {
+						"unadjusted": { "entries": { "01": 250000, "03": -3900, "04": -31000},
+						"sum": 215100, "sumIn": 374000, "sumOut": -158900 }
+					},
+					"equity:common stock": {
+						"unadjusted": { "entries": { "01": -25000 }, "sum": -25000, "sumOut": -25000 }
+					},
+					"equity:additional paid-in capital": {
+						"unadjusted": { "entries": { "01": -225000 }, "sum": -225000, "sumOut": -225000 }
+					},
+					"expenses:period:legal fees": {
+						"unadjusted": { "entries": { "03": 3900 }, "sum": 3900, "sumIn": 3900 }
+					},
+					"liabilities:long-term:mortgage payable": {
+						"unadjusted": { "entries": { "04": -124000 }, "sum": -124000, "sumOut": -124000 }
+					},
+					"assets:long-term:buildings": {
+						"unadjusted": { "entries": { "04": 52000 }, "sum": 52000, "sumIn": 52000 }
+					},
+					"assets:long-term:land": {
+						"unadjusted": { "entries": { "04": 103000 }, "sum": 103000, "sumIn": 103000 }
+					},
+				},
+				"reports": {
+					"cash": {
+						"2012": [
+							{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
+							{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 },
+							{ "date": "2012-04-07", "id": "04", "cash": 124000, "financing": 124000 },
+							{ "date": "2012-04-07", "id": "04", "cash": -155000, "investing": -155000 },
+						]
+					},
+					"income": {
+						"2012": {
+							"periodExpenses": {
+								"accounts": {
+									"legal fees": -3900
+								},
+								"total": -3900
+							}
+						}
+					}
+				}
+			});
+		});
+
+		it.only('merges transaction 04 into state', () => {
+			const ids = _.keys(RelicSpotter).filter(s => parseInt(s) <= 20);
+			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
+			console.log(JSON.stringify(_.omit(state.toJS(), "transactions"), null, '\t'))
+			expect(_.omit(state.toJS(), "transactions")).to.deep.equal({
 				"accountEntries": {
 					"assets:current:cash": {
 						"unadjusted": { "entries": { "01": 250000, "03": -3900, "04": -31000},
