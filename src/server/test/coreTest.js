@@ -388,34 +388,80 @@ describe('core logic', () => {
 			});
 		});
 
-		it.only('merges transaction 04 into state', () => {
+		it.only('merges transactions thru 20 into state', () => {
 			const ids = _.keys(RelicSpotter).filter(s => parseInt(s) <= 20);
 			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
 			console.log(JSON.stringify(_.omit(state.toJS(), "transactions"), null, '\t'))
 			expect(_.omit(state.toJS(), "transactions")).to.deep.equal({
 				"accountEntries": {
-					"assets:current:cash": {
-						"unadjusted": { "entries": { "01": 250000, "03": -3900, "04": -31000},
-						"sum": 215100, "sumIn": 374000, "sumOut": -158900 }
+					"liabilities:current:unearned rental revenue": {
+						"unadjusted": { "entries": { "15": -1200 }, "sum": -1200, "sumOut": -1200 }
 					},
-					"equity:common stock": {
-						"unadjusted": { "entries": { "01": -25000 }, "sum": -25000, "sumOut": -25000 }
+					"expenses:period:salaries": {
+						"unadjusted": { "entries": { "20": 82000 }, "sum": 82000, "sumIn": 82000 }
 					},
-					"equity:additional paid-in capital": {
-						"unadjusted": { "entries": { "01": -225000 }, "sum": -225000, "sumOut": -225000 }
-					},
-					"expenses:period:legal fees": {
-						"unadjusted": { "entries": { "03": 3900 }, "sum": 3900, "sumIn": 3900 }
+					"assets:current:inventory": {
+						"unadjusted": { "entries": { "17": 40000, "19": -30000, "07": 2000 }, "sum": 12000, "sumIn": 42000, "sumOut": -30000 }
 					},
 					"liabilities:long-term:mortgage payable": {
 						"unadjusted": { "entries": { "04": -124000 }, "sum": -124000, "sumOut": -124000 }
 					},
+					"equity:additional paid-in capital": {
+						"unadjusted": { "entries": { "01": -225000 }, "sum": -225000, "sumOut": -225000 }
+					},
+					"expenses:primary:cost of goods sold": {
+						"unadjusted": { "entries": { "19": 30000 }, "sum": 30000, "sumIn": 30000 }
+					},
+					"assets:current:cash": {
+						"unadjusted": {
+							"entries": { "10": -5000, "13": -2000, "14": -2500, "15": 1200, "16": 120100, "17": -38000, "18": 35000, "20": -82000, "01": 250000, "03": -3900, "04": -31000, "05": -33000, "06": -120000, "08": -2100, "09": -8000 },
+							"sum": 78800,
+							"sumOut": -451500,
+							"sumIn": 530300
+						}
+					},
 					"assets:long-term:buildings": {
-						"unadjusted": { "entries": { "04": 52000 }, "sum": 52000, "sumIn": 52000 }
+						"unadjusted": { "entries": { "04": 52000, "05": 33000 }, "sum": 85000, "sumIn": 85000 }
+					},
+					"expenses:period:legal fees": {
+						"unadjusted": { "entries": { "03": 3900 }, "sum": 3900, "sumIn": 3900 }
+					},
+					"equity:retained earnings": {
+						"unadjusted": { "entries": { "12": 2500 }, "sum": 2500, "sumIn": 2500 }
+					},
+					"revenues:primary:sales": {
+						"unadjusted": { "entries": { "18": -35000 }, "sum": -35000, "sumOut": -35000 }
+					},
+					"assets:current:notes receivable": {
+						"unadjusted": { "entries": { "10": 5000 }, "sum": 5000, "sumIn": 5000 }
+					},
+					"liabilities:current:dividends payable": {
+						"unadjusted": { "entries": { "12": -2500, "14": 2500 }, "sum": 0, "sumOut": -2500, "sumIn": 2500 }
+					},
+					"equity:common stock": {
+						"unadjusted": { "entries": { "01": -25000 }, "sum": -25000, "sumOut": -25000 }
+					},
+					"liabilities:current:accounts payable": {
+						"unadjusted": { "entries": { "13": 2000, "17": -2000, "07": -2000 }, "sum": -2000, "sumIn": 2000, "sumOut": -4000 }
+					},
+					"assets:long-term:equipment": {
+						"unadjusted": { "entries": { "06": 120000 }, "sum": 120000, "sumIn": 120000 }
+					},
+					"assets:current:prepaid advertising": {
+						"unadjusted": { "entries": { "09": 8000 }, "sum": 8000, "sumIn": 8000 }
+					},
+					"assets:intangible:prepaid software": {
+						"unadjusted": { "entries": { "08": 2100 }, "sum": 2100, "sumIn": 2100 }
+					},
+					"assets:current:accounts receivable": {
+						"unadjusted": { "entries": { "16": 4200 }, "sum": 4200, "sumIn": 4200 }
 					},
 					"assets:long-term:land": {
 						"unadjusted": { "entries": { "04": 103000 }, "sum": 103000, "sumIn": 103000 }
 					},
+					"revenues:primary:rental": {
+						"unadjusted": { "entries": { "16": -124300 }, "sum": -124300, "sumOut": -124300 }
+					}
 				},
 				"reports": {
 					"cash": {
@@ -424,15 +470,41 @@ describe('core logic', () => {
 							{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 },
 							{ "date": "2012-04-07", "id": "04", "cash": 124000, "financing": 124000 },
 							{ "date": "2012-04-07", "id": "04", "cash": -155000, "investing": -155000 },
+							{ "date": "2012-05-25", "id": "05", "cash": -33000, "investing": -33000 },
+							{ "date": "2012-06-02", "id": "06", "cash": -120000, "investing": -120000 },
+							{ "date": "2012-06-30", "id": "08", "cash": -2100, "investing": -2100 },
+							{ "date": "2012-06-30", "id": "09", "cash": -8000, "operating": -8000 }
+							{ "date": "2012-06-30", "id": "10", "cash": -5000, "operating": -5000 },
+							{ "date": "2012-07-31", "id": "13", "cash": -2000, "operating": -2000 },
+							{ "date": "2012-08-31", "id": "14", "cash": -2500, "financing": -2500 },
+							{ "date": "2012-12-01", "id": "15", "cash": 1200, "operating": 1200 },
+							{ "date": "2012-12-31", "id": "16", "cash": 120100, "operating": 120100 },
+							{ "date": "2012-12-31", "id": "17", "cash": -38000, "operating": -38000 },
+							{ "date": "2012-12-31", "id": "18", "cash": 35000, "operating": 35000 },
+							{ "date": "2012-12-31", "id": "20", "cash": -82000, "operating": -82000 },
 						]
 					},
 					"income": {
 						"2012": {
+							"revenues": {
+								"accounts": {
+									"rental": 124300,
+									"sales": 35000
+								},
+								"total": 159300
+							},
+							"costOfRevenues": {
+								"accounts": {
+									"cost of goods sold": -30000
+								},
+								"total": -30000
+							},
 							"periodExpenses": {
 								"accounts": {
+									"salaries": -82000,
 									"legal fees": -3900
 								},
-								"total": -3900
+								"total": -85900
 							}
 						}
 					}
