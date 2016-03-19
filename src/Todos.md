@@ -21,7 +21,7 @@
 		* [x] filter on accounts
 	* [x] add basename and index to each entry
 * [x] `register`: should update state with map from index to entry (add from main-repl, to a field like `repl.registerIndexes`)
-* [ ] server: coreTest: working on transactions (next: 05-20)
+* [ ] server: coreTest: working on transactions (next: 01-28)
 * [ ] repl: `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
 * [ ] repl: `a 1` should start an interactive assignment of accounts to entry 1, especially for when multiple accounts need to be added
 * [ ] repl: add a command to list recent entries
