@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import {List, Map, fromJS} from 'immutable';
+import naturalSort from 'javascript-natural-sort';
 import {expect} from 'chai';
 
 import {mergeTransaction} from '../src/core2.js';
@@ -190,65 +191,72 @@ const RelicSpotter = {
 		}
 	},
 	"22": {
-		phase: "adjusting",
+		id: "22",
+		transactionType: "adjusting",
 		description: "Depreciation on building",
 		date: "2012-12-31",
 		accounts: {
-			"assets:depreciable:accumulated depreciation": [{amount: -1500}],
-			"expenses:depreciation:buildings": [{amount: 1500}]
+			"assets:long-term:accumulated depreciation": [{amount: -1500}],
+			"expenses:period:depreciation": [{amount: 1500}]
 		}
 	},
 	"23": {
-		phase: "adjusting",
+		id: "23",
+		transactionType: "adjusting",
 		description: "Depreciation on metal detectors",
 		date: "2012-12-31",
 		accounts: {
-			"assets:depreciable:accumulated depreciation": [{amount: -30000}],
-			"expenses:depreciation:equipment": [{amount: 30000}]
+			"assets:long-term:accumulated depreciation": [{amount: -30000}],
+			"expenses:primary:depreciation": [{amount: 30000}]
 		}
 	},
 	"24": {
-		phase: "adjusting",
-		description: "Amortization on software license, see #8",
+		id: "24",
+		transactionType: "adjusting",
+		description: "Amortization on software license, see #08",
 		date: "2012-12-31",
 		accounts: {
-			"assets:prepaid software": [{amount: -350}],
-			"expenses:software amortization": [{amount: 350}]
+			"assets:intangible:prepaid software": [{amount: -350}],
+			"expenses:period:software amortization": [{amount: 350}]
 		}
 	},
 	"25": {
-		phase: "adjusting",
-		description: "Expense prepaid advertising, see #9",
+		id: "25",
+		transactionType: "adjusting",
+		description: "Expense prepaid advertising, see #09",
 		date: "2012-12-31",
 		accounts: {
-			"assets:prepaid advertising": [{amount: -4000}],
-			"expenses:advertising": [{amount: 4000}]
+			"assets:current:prepaid advertising": [{amount: -4000}],
+			"expenses:period:advertising": [{amount: 4000}]
 		}
 	},
 	"26": {
-		phase: "adjusting",
+		id: "26",
+		transactionType: "adjusting",
 		description: "Accumulated interest receivable, see #10",
 		date: "2012-12-31",
 		accounts: {
-			"revenues:interest": [{amount: -250}],
-			"assets:interest receivable": [{amount: 250}]
+			"revenues:secondary:interest": [{amount: -250}],
+			"assets:current:interest receivable": [{amount: 250}]
 		}
 	},
 	"27": {
-		phase: "adjusting",
+		id: "27",
+		transactionType: "adjusting",
 		description: "Earning of unearned revenues, see #15",
 		date: "2012-12-31",
 		accounts: {
-			"revenues:rental": [{amount: -100}],
-			"liabilities:unearned rental revenue": [{amount: 100}]
+			"revenues:secondary:rental": [{amount: -100}],
+			"liabilities:current:unearned rental revenue": [{amount: 100}]
 		}
 	},
 	"28": {
-		phase: "adjusting",
+		id: "28",
+		transactionType: "adjusting",
 		description: "Estimated income taxes",
 		date: "2012-12-31",
 		accounts: {
-			"liabilities:income taxes payable": [{amount: -630}],
+			"liabilities:current:income taxes payable": [{amount: -630}],
 			"expenses:income taxes": [{amount: 630}],
 		}
 	},
@@ -390,8 +398,9 @@ describe('core logic', () => {
 
 		it.only('merges transactions thru 20 into state', () => {
 			const ids = _.keys(RelicSpotter).filter(s => parseInt(s) <= 20);
+			ids.sort(naturalSort);
 			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
-			console.log(JSON.stringify(_.omit(state.toJS(), "transactions"), null, '\t'))
+			// console.log(JSON.stringify(_.omit(state.toJS(), "transactions"), null, '\t'))
 			expect(_.omit(state.toJS(), "transactions")).to.deep.equal({
 				"accountEntries": {
 					"liabilities:current:unearned rental revenue": {
@@ -473,7 +482,7 @@ describe('core logic', () => {
 							{ "date": "2012-05-25", "id": "05", "cash": -33000, "investing": -33000 },
 							{ "date": "2012-06-02", "id": "06", "cash": -120000, "investing": -120000 },
 							{ "date": "2012-06-30", "id": "08", "cash": -2100, "investing": -2100 },
-							{ "date": "2012-06-30", "id": "09", "cash": -8000, "operating": -8000 }
+							{ "date": "2012-06-30", "id": "09", "cash": -8000, "operating": -8000 },
 							{ "date": "2012-06-30", "id": "10", "cash": -5000, "operating": -5000 },
 							{ "date": "2012-07-31", "id": "13", "cash": -2000, "operating": -2000 },
 							{ "date": "2012-08-31", "id": "14", "cash": -2500, "financing": -2500 },
@@ -512,6 +521,12 @@ describe('core logic', () => {
 			});
 		});
 
+		it('merges transactions thru 28 into state', () => {
+			const ids = _.keys(RelicSpotter).filter(s => parseInt(s) <= 28);
+			ids.sort(naturalSort);
+			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
+			console.log(JSON.stringify(_.omit(state.toJS(), "transactions"), null, '\t'));
+		});
 	});
 
 });

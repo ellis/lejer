@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { List, Map, fromJS } from 'immutable';
+import naturalSort from 'javascript-natural-sort';
 import moment from 'moment';
 
 export const INITIAL_STATE = Map();
@@ -21,7 +22,7 @@ export function mergeTransaction(state, basename, entryId, t) {
 	entryId = entryId.toString();
 	state = state.mergeDeepIn(["transactions", basename, entryId], fromJS(t));
 
-	const phase = _.get(t, "phase", "unadjusted");
+	const phase = _.get(t, "transactionType", "unadjusted");
 	_.forEach(t.accounts, (accountEntries, accountName) => {
 		_.forEach(accountEntries, accountEntry => {
 			const amount = accountEntry.amount || 0;

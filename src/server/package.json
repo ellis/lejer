@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "immutable": "3.7.6",
+    "javascript-natural-sort": "^0.7.1",
     "lodash": "^4.6.1",
     "moment": "^2.11.2",
     "redux": "3.3.1",
