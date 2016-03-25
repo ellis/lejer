@@ -217,7 +217,7 @@ const RelicSpotter = {
 		date: "2012-12-31",
 		accounts: {
 			"assets:intangible:prepaid software": [{amount: -350}],
-			"expenses:period:software amortization": [{amount: 350}]
+			"expenses:primary:software amortization": [{amount: 350}]
 		}
 	},
 	"25": {
@@ -246,7 +246,7 @@ const RelicSpotter = {
 		description: "Earning of unearned revenues, see #15",
 		date: "2012-12-31",
 		accounts: {
-			"revenues:secondary:rental": [{amount: -100}],
+			"revenues:primary:rental": [{amount: -100}],
 			"liabilities:current:unearned rental revenue": [{amount: 100}]
 		}
 	},
@@ -564,7 +564,7 @@ describe('core logic', () => {
 				"assets:long-term:buildings": {
 					"unadjusted": { "entries": { "04": 52000, "05": 33000 }, "sum": 85000, "sumIn": 85000 }
 				},
-				"revenues:secondary:rental": {
+				"revenues:primary:rental": {
 					"adjusting": { "entries": { "27": -100 }, "sum": -100, "sumOut": -100 }
 				},
 				"expenses:period:legal fees": {
@@ -610,7 +610,7 @@ describe('core logic', () => {
 					"unadjusted": { "entries": { "09": 8000 }, "sum": 8000, "sumIn": 8000 },
 					"adjusting": { "entries": { "25": -4000 }, "sum": -4000, "sumOut": -4000 }
 				},
-				"expenses:period:software amortization": {
+				"expenses:primary:software amortization": {
 					"adjusting": { "entries": { "24": 350 }, "sum": 350, "sumIn": 350 }
 				},
 				"assets:intangible:prepaid software": {
@@ -627,7 +627,8 @@ describe('core logic', () => {
 					"unadjusted": { "entries": { "04": 103000 }, "sum": 103000, "sumIn": 103000 }
 				},
 				"revenues:primary:rental": {
-					"unadjusted": { "entries": { "16": -124300 }, "sum": -124300, "sumOut": -124300 }
+					"unadjusted": { "entries": { "16": -124300 }, "sum": -124300, "sumOut": -124300 },
+					"adjusting": {"entries": { "27": -100 }, "sum": -100, "sumOut": -100 }
 				}
 			});
 			expect(state.getIn(["reports", "cash"]).toJS()).to.deep.equal({
@@ -652,29 +653,29 @@ describe('core logic', () => {
 			});
 			expect(state.getIn(["reports", "income"]).toJS()).to.deep.equal({
 				"2012": {
-					"periodExpenses": {
-						"accounts": {
-							"legal fees": -3900,
-							"salaries": -82000,
-							"depreciation": -1500,
-							"software amortization": -350,
-							"advertising": -4000
-						},
-						"total": -91750
-					},
 					"revenues": {
 						"accounts": {
-							"rental": 124300,
+							"rental": 124400,
 							"sales": 35000
 						},
-						"total": 159300
+						"total": 159400
 					},
 					"costOfRevenues": {
 						"accounts": {
 							"cost of goods sold": -30000,
+							"software amortization": -350,
 							"depreciation": -30000
 						},
-						"total": -60000
+						"total": -60350
+					},
+					"periodExpenses": {
+						"accounts": {
+							"salaries": -82000,
+							"legal fees": -3900,
+							"advertising": -4000,
+							"depreciation": -1500
+						},
+						"total": -91400
 					},
 					"secondaryLosses": {
 						"accounts": {
@@ -684,13 +685,12 @@ describe('core logic', () => {
 					},
 					"secondaryGains": {
 						"accounts": {
-							"interest": 250,
-							"rental": 100
+							"interest": 250
 						},
-						"total": 350
+						"total": 250
 					}
 				}
-			})
+			});
 		});
 	});
 
