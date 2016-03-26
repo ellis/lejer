@@ -45,6 +45,7 @@ export function mergeTransaction(state, basename, entryId, t) {
 
 	state = addTransactionToReportCash(state, t);
 	state = addTransactionToReportIncome(state, t);
+	state = addTransactionToReportBalance(state, t);
 
 	return state;
 }
@@ -130,34 +131,152 @@ function addTransactionToReportIncome(state, t) {
 	});
 
 	return state;
-	/*
-	const cors = printAndSum("Cost of Revenues", ["expenses:depreciation:equipment", "expenses:software amortization", "expenses:cost of goods sold"], -1);
-	rows.push(["Total cost of revenues", cors]);
-	const gross = revenues + cors;
-	rows.push(["Gross profit", gross]);
-	rows.push([]);
+}
 
-	const sga = printAndSum("Period costs", ["expenses:salaries", "expenses:legal fees", "expenses:advertising", "expenses:depreciation:buildings"], -1);
-	rows.push(["Total SG&A", sga]);
-	const operatingIncome = gross + sga;
-	rows.push(["Operating income", operatingIncome]);
-	rows.push([]);
+function addTransactionToReportBalance(state, t) {
+	const date0 = _.get(t, ["tags", "report/income/date"], t.date);
+	// console.log({tdate: t.date, date0})
 
-	const gains = printAndSum("Secondary gains & losses", ["revenues:interest", "expenses:interest"], -1);
-	rows.push(["Total gains", gains]);
-	rows.push([]);
+	_.forEach(t.accounts, (accountEntries, accountName) => {
+		_.forEach(accountEntries, accountEntry => {
+			const amount = accountEntry.amount || 0;
+			const date = _.get(accountEntry, ["tags", "report/income/date"], date0);
+			// console.log({amount, date})
+			if (!amount || !date) {
+				return;
+			}
 
-	const ebt = operatingIncome + gains;
-	rows.push(["Pre-tax income", ebt]);
-	rows.push([]);
+			const period = moment(date).year().toString();
+			let report = state.getIn(["reports", "balance", period], Map());
+			const accountPath = accountName.split(":");
+			// console.log({accountPath})
 
-	const tax = -630;
-	rows.push(["Income tax expense", tax]);
-	const netIncome = ebt + tax;
-	rows.push(["Net income", netIncome]);
-	rows.push([]);
+			// Assets
+			if (_.isEqual(["assets", "current"], _.take(accountPath, 2))) {
+				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
+				report = report
+					.updateIn(["assetsCurrent", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["assetsCurrent", "total"], 0, n => n + -amount)
+					.updateIn(["debitsTotal", "total"], 0, n => n + -amount);
+			}
+			else if (_.isEqual(["assets", "long-term"], _.take(accountPath, 2))) {
+				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
+				report = report
+					.updateIn(["assetsLongterm", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["assetsLongterm", "total"], 0, n => n + -amount)
+					.updateIn(["debitsTotal", "total"], 0, n => n + -amount);
+			}
+			else if (_.isEqual(["assets", "intangible"], _.take(accountPath, 2))) {
+				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
+				report = report
+					.updateIn(["assetsIntangible", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["assetsIntangible", "total"], 0, n => n + -amount)
+					.updateIn(["debitsTotal", "total"], 0, n => n + -amount);
+			}
 
-	console.log(getTableString(rows, ["Account", "Balance"]));
-	console.log();
-	*/
+			// Liabilities
+			else if (_.isEqual(["liabilities", "current"], _.take(accountPath, 2))) {
+				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
+				report = report
+					.updateIn(["liabilitiesCurrent", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["liabilitiesCurrent", "total"], 0, n => n + -amount)
+					.updateIn(["liabilitiesTotal", "total"], 0, n => n + -amount)
+					.updateIn(["creditsTotal", "total"], 0, n => n + -amount);
+			}
+			else if (_.isEqual(["liabilities", "long-term"], _.take(accountPath, 2))) {
+				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
+				report = report
+					.updateIn(["liabilitiesLongterm", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["liabilitiesLongterm", "total"], 0, n => n + -amount)
+					.updateIn(["liabilitiesTotal", "total"], 0, n => n + -amount)
+					.updateIn(["creditsTotal", "total"], 0, n => n + -amount);
+			}
+
+			// Liabilities
+			else if (_.isEqual(["equity"], _.take(accountPath, 1))) {
+				const accountName2 = _.drop(accountPath, 1).join(":") || "general";
+				report = report
+					.updateIn(["equity", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["equity", "total"], 0, n => n + -amount)
+					.updateIn(["creditsTotal", "total"], 0, n => n + -amount);
+			}
+
+			state = state.setIn(["reports", "balance", period], report);
+		});
+	});
+
+	return state;
+}
+
+function updateClosingTransactions(state, t) {
+	const date0 = _.get(t, ["tags", "report/income/date"], t.date);
+	// console.log({tdate: t.date, date0})
+
+	_.forEach(t.accounts, (accountEntries, accountName) => {
+		_.forEach(accountEntries, accountEntry => {
+			const amount = accountEntry.amount || 0;
+			const date = _.get(accountEntry, ["tags", "report/income/date"], date0);
+			// console.log({amount, date})
+			if (!amount || !date) {
+				return;
+			}
+
+			const period = moment(date).year().toString();
+			let report = state.getIn(["reports", "balance", period], Map());
+			const accountPath = accountName.split(":");
+			// console.log({accountPath})
+
+			// Assets
+			if (_.isEqual(["revenues"], _.take(accountPath, 1))) {
+				const accountName2 = _.drop(accountPath, 1).join(":") || "general";
+				CONTINUE (see `c1 = ` below)
+				report = report
+					.updateIn(["assetsCurrent", "accounts", accountName2], 0, n => n + -amount)
+					.updateIn(["assetsCurrent", "total"], 0, n => n + -amount)
+					.updateIn(["debitsTotal", "total"], 0, n => n + -amount);
+			}
+
+
+	// Generate closing transaction C1, which closes out all revenues to Retained Earnings
+	const c1 = (() => {
+		const expenses = _(taccounts).keys().filter(s => _.startsWith(s, "revenues")).sortBy(_.identity).value();
+		//console.log(JSON.stringify(expenses))
+		const pairs = expenses.map(key => [key, [{amount: -taccounts[key].sum}]]);
+		//_.forEach(pairs, x => {console.log(x)});
+		const sumExpenses = _.reduce(pairs, (acc, x) => acc + x[1][0].amount, 0);
+		const accounts = _.fromPairs(
+			[["equity:retained earnings", [{amount: -sumExpenses}]]].concat(pairs)
+		);
+		//console.log(JSON.stringify({accounts}, null, '\t'))
+		//_.forEach(s => console.log(s));
+		return {
+			"phase": "closing",
+			description: "Revenues to Retained Earnings",
+			date: "2012-12-31",
+			accounts
+		};
+	})();
+
+	const c2 = (() => {
+		// Generate closing transaction C2, which closes out all expenses to Retained Earnings
+		const expenses = _(taccounts).keys().filter(s => _.startsWith(s, "expenses")).sortBy(_.identity).value();
+		//console.log(JSON.stringify(expenses))
+		const pairs = expenses.map(key => [key, [{amount: -taccounts[key].sum}]]);
+		//_.forEach(pairs, x => {console.log(x)});
+		const sumExpenses = _.reduce(pairs, (acc, x) => acc + x[1][0].amount, 0);
+		const accounts = _.fromPairs(
+			[["equity:retained earnings", [{amount: -sumExpenses}]]].concat(pairs)
+		);
+		//console.log(JSON.stringify({accounts}, null, '\t'))
+		//_.forEach(s => console.log(s));
+		return {
+			"phase": "closing",
+			description: "Expenses to Retained Earnings",
+			date: "2012-12-31",
+			accounts
+		};
+	})();
+	//console.log(JSON.stringify(c2, null, '\t'))
+
+	return _.merge({}, transactions, {"C1": c1, "C2": c2});
 }
