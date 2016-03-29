@@ -12,7 +12,7 @@ export const INITIAL_STATE = Map();
  * - description: string - optional
  * - details: string - optional additional details for personal notes
  * - tags: object - optional Tags map from tag to value
- * - accounts: object - Map from account name to AccountEntry
+ * - accounts: object - map from account name to array of AccountEntry
  *
  * AccountEntry:
  * - amount: Amount
@@ -155,23 +155,23 @@ function addTransactionToReportBalance(state, t) {
 			if (_.isEqual(["assets", "current"], _.take(accountPath, 2))) {
 				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
 				report = report
-					.updateIn(["assetsCurrent", "accounts", accountName2], 0, n => n + -amount)
-					.updateIn(["assetsCurrent", "total"], 0, n => n + -amount)
-					.updateIn(["debitsTotal", "total"], 0, n => n + -amount);
+					.updateIn(["assetsCurrent", "accounts", accountName2], 0, n => n + amount)
+					.updateIn(["assetsCurrent", "total"], 0, n => n + amount)
+					.updateIn(["debitsTotal", "total"], 0, n => n + amount);
 			}
 			else if (_.isEqual(["assets", "long-term"], _.take(accountPath, 2))) {
 				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
 				report = report
-					.updateIn(["assetsLongterm", "accounts", accountName2], 0, n => n + -amount)
-					.updateIn(["assetsLongterm", "total"], 0, n => n + -amount)
-					.updateIn(["debitsTotal", "total"], 0, n => n + -amount);
+					.updateIn(["assetsLongterm", "accounts", accountName2], 0, n => n + amount)
+					.updateIn(["assetsLongterm", "total"], 0, n => n + amount)
+					.updateIn(["debitsTotal", "total"], 0, n => n + amount);
 			}
 			else if (_.isEqual(["assets", "intangible"], _.take(accountPath, 2))) {
 				const accountName2 = _.drop(accountPath, 2).join(":") || "general";
 				report = report
-					.updateIn(["assetsIntangible", "accounts", accountName2], 0, n => n + -amount)
-					.updateIn(["assetsIntangible", "total"], 0, n => n + -amount)
-					.updateIn(["debitsTotal", "total"], 0, n => n + -amount);
+					.updateIn(["assetsIntangible", "accounts", accountName2], 0, n => n + amount)
+					.updateIn(["assetsIntangible", "total"], 0, n => n + amount)
+					.updateIn(["debitsTotal", "total"], 0, n => n + amount);
 			}
 
 			// Liabilities
@@ -224,19 +224,30 @@ function updateClosingTransactions(state, t) {
 			const period = moment(date).year().toString();
 			let report = state.getIn(["reports", "balance", period], Map());
 			const accountPath = accountName.split(":");
+			// Date for end of period/year
+			const dateClosing = moment(`${period+1}-01-01`).subtract(1, 'day').format('YYYY-MM-DD');
 			// console.log({accountPath})
 
 			// Assets
 			if (_.isEqual(["revenues"], _.take(accountPath, 1))) {
 				const accountName2 = _.drop(accountPath, 1).join(":") || "general";
-				CONTINUE (see `c1 = ` below)
-				report = report
-					.updateIn(["assetsCurrent", "accounts", accountName2], 0, n => n + -amount)
-					.updateIn(["assetsCurrent", "total"], 0, n => n + -amount)
-					.updateIn(["debitsTotal", "total"], 0, n => n + -amount);
+				const pathC1 = ["transactions", "AUTOMATIC", "C1_"+period];
+				let c1 = state.getIn(pathC1, Map({
+					transactionType: "closing",
+					description: "Revenues to Retained Earnings",
+					date: dateClosing,
+					accounts: Map()
+				}));
+				c1 = c1.updateIn(["accounts", accountName], List(), l => l.push(Map({"amount": -amount})));
+				c1 = c1.updateIn(["accounts", "equity:retained earnings"], List(), l => l.push(Map({"amount": amount})));
+				state.setIn(pathC1, c1);
 			}
+		});
+	});
 
+	return state;
 
+/*
 	// Generate closing transaction C1, which closes out all revenues to Retained Earnings
 	const c1 = (() => {
 		const expenses = _(taccounts).keys().filter(s => _.startsWith(s, "revenues")).sortBy(_.identity).value();
@@ -279,4 +290,5 @@ function updateClosingTransactions(state, t) {
 	//console.log(JSON.stringify(c2, null, '\t'))
 
 	return _.merge({}, transactions, {"C1": c1, "C2": c2});
+*/
 }
