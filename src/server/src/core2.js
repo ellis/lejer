@@ -45,6 +45,7 @@ export function mergeTransaction(state, basename, entryId, t) {
 
 	state = addTransactionToReportCash(state, t);
 	state = addTransactionToReportIncome(state, t);
+	state = updateClosingTransactions(state, t);
 	state = addTransactionToReportBalance(state, t);
 
 	return state;
@@ -228,8 +229,10 @@ function updateClosingTransactions(state, t) {
 			const dateClosing = moment(`${period+1}-01-01`).subtract(1, 'day').format('YYYY-MM-DD');
 			// console.log({accountPath})
 
-			// Assets
-			if (_.isEqual(["revenues"], _.take(accountPath, 1))) {
+			const isRevenue = _.isEqual(["revenues"], _.take(accountPath, 1));
+			const isExpense = _.isEqual(["expenses"], _.take(accountPath, 1));
+			// Generate closing transaction C1, which closes out all revenues to Retained Earnings
+			if (isRevenue) {
 				const accountName2 = _.drop(accountPath, 1).join(":") || "general";
 				const pathC1 = ["transactions", "AUTOMATIC", "C1_"+period];
 				let c1 = state.getIn(pathC1, Map({
@@ -240,55 +243,36 @@ function updateClosingTransactions(state, t) {
 				}));
 				c1 = c1.updateIn(["accounts", accountName], List(), l => l.push(Map({"amount": -amount})));
 				c1 = c1.updateIn(["accounts", "equity:retained earnings"], List(), l => l.push(Map({"amount": amount})));
-				state.setIn(pathC1, c1);
+				console.log("C1: "+c1)
+				state = state.setIn(pathC1, c1);
+			}
+
+			// Generate closing transaction C2, which closes out all expenses to Retained Earnings
+			if (isExpense) {
+				const accountName2 = _.drop(accountPath, 1).join(":") || "general";
+				const pathC1 = ["transactions", "AUTOMATIC", "C2_"+period];
+				let c1 = state.getIn(pathC1, Map({
+					transactionType: "closing",
+					description: "Expenses to Retained Earnings",
+					date: dateClosing,
+					accounts: Map()
+				}));
+				c1 = c1.updateIn(["accounts", accountName], List(), l => l.push(Map({"amount": -amount})));
+				c1 = c1.updateIn(["accounts", "equity:retained earnings"], List(), l => l.push(Map({"amount": amount})));
+				console.log("C2: "+c1)
+				state = state.setIn(pathC1, c1);
+			}
+
+			// Update equity balance
+			if (isRevenue || isExpense) {
+				report = report
+					.updateIn(["equity", "accounts", "retained earnings"], 0, n => n + -amount)
+					.updateIn(["equity", "total"], 0, n => n + -amount)
+					.updateIn(["creditsTotal", "total"], 0, n => n + -amount);
+					state = state.setIn(["reports", "balance", period], report);
 			}
 		});
 	});
 
 	return state;
-
-/*
-	// Generate closing transaction C1, which closes out all revenues to Retained Earnings
-	const c1 = (() => {
-		const expenses = _(taccounts).keys().filter(s => _.startsWith(s, "revenues")).sortBy(_.identity).value();
-		//console.log(JSON.stringify(expenses))
-		const pairs = expenses.map(key => [key, [{amount: -taccounts[key].sum}]]);
-		//_.forEach(pairs, x => {console.log(x)});
-		const sumExpenses = _.reduce(pairs, (acc, x) => acc + x[1][0].amount, 0);
-		const accounts = _.fromPairs(
-			[["equity:retained earnings", [{amount: -sumExpenses}]]].concat(pairs)
-		);
-		//console.log(JSON.stringify({accounts}, null, '\t'))
-		//_.forEach(s => console.log(s));
-		return {
-			"phase": "closing",
-			description: "Revenues to Retained Earnings",
-			date: "2012-12-31",
-			accounts
-		};
-	})();
-
-	const c2 = (() => {
-		// Generate closing transaction C2, which closes out all expenses to Retained Earnings
-		const expenses = _(taccounts).keys().filter(s => _.startsWith(s, "expenses")).sortBy(_.identity).value();
-		//console.log(JSON.stringify(expenses))
-		const pairs = expenses.map(key => [key, [{amount: -taccounts[key].sum}]]);
-		//_.forEach(pairs, x => {console.log(x)});
-		const sumExpenses = _.reduce(pairs, (acc, x) => acc + x[1][0].amount, 0);
-		const accounts = _.fromPairs(
-			[["equity:retained earnings", [{amount: -sumExpenses}]]].concat(pairs)
-		);
-		//console.log(JSON.stringify({accounts}, null, '\t'))
-		//_.forEach(s => console.log(s));
-		return {
-			"phase": "closing",
-			description: "Expenses to Retained Earnings",
-			date: "2012-12-31",
-			accounts
-		};
-	})();
-	//console.log(JSON.stringify(c2, null, '\t'))
-
-	return _.merge({}, transactions, {"C1": c1, "C2": c2});
-*/
 }

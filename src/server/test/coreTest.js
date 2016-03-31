@@ -504,7 +504,8 @@ describe('core logic', () => {
 			const ids = _.keys(RelicSpotter).filter(s => parseInt(s) <= 28);
 			ids.sort(naturalSort);
 			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
-			console.log(JSON.stringify(_.omit(state.toJS(), "transactions"), null, '\t'));
+			// console.log(JSON.stringify(_.omit(state.toJS(), "transactions"), null, '\t'));
+			console.log(JSON.stringify(state.toJS().transactions, null, '\t'));
 			const state2 = state.toJS();
 			expect(state2.accountEntries).to.deep.equal({
 				"liabilities:current:unearned rental revenue": {
