@@ -45,8 +45,9 @@ export function mergeTransaction(state, basename, entryId, t) {
 
 	state = addTransactionToReportCash(state, t);
 	state = addTransactionToReportIncome(state, t);
-	state = updateClosingTransactions(state, t);
 	state = addTransactionToReportBalance(state, t);
+	state = addTransactionToReportCashflow(state, t);
+	state = updateClosingTransactions(state, t);
 
 	return state;
 }
@@ -203,6 +204,37 @@ function addTransactionToReportBalance(state, t) {
 			}
 
 			state = state.setIn(["reports", "balance", period], report);
+		});
+	});
+
+	return state;
+}
+
+function addTransactionToReportCashflow(state, t) {
+	const date0 = _.get(t, ["tags", "report/cash/date"], t.date);
+
+	_.forEach(t.accounts, (accountEntries, accountName) => {
+		_.forEach(accountEntries, accountEntry => {
+			const amount = accountEntry.amount || 0;
+
+			const cashActivity = _.get(accountEntry, ["tags", "reports/cash/activity"]);
+			const date = _.get(accountEntry, ["tags", "report/cash/date"], date0);
+			// Add cash transaction to cashTransactionEntries
+			if (cashActivity && date) {
+				const period = moment(date).year().toString();
+
+				state = state.updateIn(["reports", "cashflow", period, cashActivity], Map(), m => {
+					return m.updateIn(
+							["transactions"],
+							List(),
+							l => l.push(Map({id: t.id, description: t.description, amount}))
+						).updateIn(
+							["total"],
+							0,
+							n => n += amount
+						);
+				});
+			}
 		});
 	});
 
