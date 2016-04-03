@@ -49,11 +49,19 @@ describe('amount', () => {
 
 	describe("add", () => {
 		it("should add -42 + 84", () => {
-			expect(Amount.add(-42, 84)).to.deep.equal({"": 42});
+			expect(Amount.add(-42, 84)).to.deep.equal(42);
 		});
 
 		it("should add -42 + 84 with defaultCurrency=EUR", () => {
-			expect(Amount.add(-42, 84, configEUR)).to.deep.equal({"EUR": 42});
+			expect(Amount.add(-42, 84, configEUR)).to.deep.equal(42);
+		});
+
+		it("should add '-42' + '84'", () => {
+			expect(Amount.add('-42', '84')).to.deep.equal({"": 42});
+		});
+
+		it("should add '-42' + '84' with defaultCurrency=EUR", () => {
+			expect(Amount.add('-42', '84', configEUR)).to.deep.equal({"EUR": 42});
 		});
 
 		it("should add '-42 EUR' + '84EUR'", () => {

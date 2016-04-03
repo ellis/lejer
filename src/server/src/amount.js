@@ -20,6 +20,9 @@ export function normalize(x, config = {}) {
 }
 
 export function add(amounts1, amounts2, config) {
+	if (_.isNumber(amounts1) && _.isNumber(amounts2)) {
+		return amounts1 + amounts2;
+	}
 	const a1 = normalize(amounts1, config);
 	const a2 = normalize(amounts2, config);
 	// console.log({a1, a2})
