@@ -1,8 +1,12 @@
-function normalize(x, config) {
+import _ from 'lodash';
+
+export function normalize(x, config = {}) {
+	// console.log({config})
 	if (_.isPlainObject(x)) {
 		return x;
 	}
 	else if (_.isNumber(x)) {
+		// console.log({a: config.defaultCurrency, b: config.defaultCurrency || ""})
 		return {[config.defaultCurrency || ""]: x};
 	}
 	else if (_.isString(x)) {
@@ -11,11 +15,15 @@ function normalize(x, config) {
 		const numberString = match1[0];
 		const number = Number(numberString);
 		const nonnumberString = (s.substr(0, match1.index) + s.substr(match1.index + numberString.length)).trim();
-		return {[nonnumberString: number]};
+		return {[nonnumberString || config.defaultCurrency || ""]: number};
 	}
 }
 
 export function add(amounts1, amounts2, config) {
 	const a1 = normalize(amounts1, config);
 	const a2 = normalize(amounts2, config);
+	// console.log({a1, a2})
+	const customizer = (n1, n2) => (_.isNumber(n1) && _.isNumber(n2)) ? n1 + n2 : undefined;
+	const result = _.mergeWith(_.clone(a1), a2, customizer);
+	return result;
 }
