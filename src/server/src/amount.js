@@ -30,3 +30,15 @@ export function add(amounts1, amounts2, config) {
 	const result = _.mergeWith(_.clone(a1), a2, customizer);
 	return result;
 }
+
+export function subtract(amounts1, amounts2, config) {
+	if (_.isNumber(amounts1) && _.isNumber(amounts2)) {
+		return amounts1 - amounts2;
+	}
+	const a1 = normalize(amounts1, config);
+	const a2 = normalize(amounts2, config);
+	// console.log({a1, a2})
+	const customizer = (n1, n2) => (_.isNumber(n1) && _.isNumber(n2)) ? n1 - n2 : undefined;
+	const result = _.mergeWith(_.clone(a1), a2, customizer);
+	return result;
+}

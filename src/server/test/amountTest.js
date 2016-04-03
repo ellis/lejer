@@ -73,4 +73,16 @@ describe('amount', () => {
 		});
 
 	});
+
+	describe("subtract", () => {
+		it("should subtract -42 - -84", () => {
+			expect(Amount.subtract(-42, -84)).to.deep.equal(42);
+		});
+
+		it("should subtract '-42 EUR' - '-84EUR'", () => {
+			expect(Amount.subtract('-42 EUR', '-84EUR')).to.deep.equal({"EUR": 42});
+		});
+
+	});
+
 });
