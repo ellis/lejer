@@ -276,7 +276,7 @@ function updateClosingTransactions(state, t) {
 				}));
 				c1 = c1.updateIn(["accounts", accountName], List(), l => l.push(Map({"amount": -amount})));
 				c1 = c1.updateIn(["accounts", "equity:retained earnings"], List(), l => l.push(Map({"amount": amount})));
-				console.log("C1: "+c1)
+				// console.log("C1: "+c1)
 				state = state.setIn(pathC1, c1);
 			}
 
@@ -292,7 +292,7 @@ function updateClosingTransactions(state, t) {
 				}));
 				c1 = c1.updateIn(["accounts", accountName], List(), l => l.push(Map({"amount": -amount})));
 				c1 = c1.updateIn(["accounts", "equity:retained earnings"], List(), l => l.push(Map({"amount": amount})));
-				console.log("C2: "+c1)
+				// console.log("C2: "+c1)
 				state = state.setIn(pathC1, c1);
 			}
 
