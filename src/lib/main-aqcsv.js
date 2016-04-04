@@ -37,13 +37,18 @@ function loadAqbankingCsv(filename) {
 		}
 		const data1 = {};
 		output.forEach((x, i) => {
-			const x2 = _.pick(x, 'transactionId', 'localBankCode', 'localAccountNumber', 'remoteBankCode', 'remoteAccountNumber', 'date', 'valutadate', 'value_value', 'value_currency', 'localName');
-			_.merge(x2, {
-				remoteName: aggregate(x, 'remoteName'),
-				purpose: aggregate(x, 'purpose'),
-				category: aggregate(x, 'category')
-			});
-			data1[i] = x2;
+			const id = (i+1).toString();
+			const x2 = _.merge({id},
+				_.pick(x, 'transactionId', 'localBankCode', 'localAccountNumber', 'remoteBankCode', 'remoteAccountNumber', 'date', 'valutadate', 'value_value', 'value_currency', 'localName'),
+				{
+					date: moment(x.date, "YYYY/MM/DD").format("YYYY-MM-DD"),
+					valutadate: moment(x.valutadate, "YYYY/MM/DD").format("YYYY-MM-DD"),
+					remoteName: aggregate(x, 'remoteName'),
+					purpose: aggregate(x, 'purpose'),
+					category: aggregate(x, 'category')
+				}
+			);
+			data1[id] = x2;
 		});
 		const basename = path.basename(filename, ".csv");
 		const data2 = {};

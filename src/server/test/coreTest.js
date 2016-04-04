@@ -735,9 +735,106 @@ describe('core logic', () => {
 					},
 				}
 			});
-			console.log(JSON.stringify(state.toJS().reports.cashflow, null, '\t'));
-			// expect(state2.reports.cashflow).to.deep.equal({
-			// });
+			// console.log(JSON.stringify(state.toJS().reports.cashflow, null, '\t'));
+			expect(state2.reports.cashflow).to.deep.equal({
+				"2012": {
+					"financing": {
+						"transactions": [
+							{
+								"id": "01",
+								"description": "Sell shares",
+								"amount": 250000
+							},
+							{
+								"id": "04",
+								"description": "Buy building and land",
+								"amount": 124000
+							},
+							{
+								"id": "14",
+								"description": "Pay dividend",
+								"amount": -2500
+							}
+						],
+						"total": 371500
+					},
+					"operating": {
+						"transactions": [
+							{
+								"id": "03",
+								"description": "Legal fees",
+								"amount": -3900
+							},
+							{
+								"id": "09",
+								"description": "Buy advertising",
+								"amount": -8000
+							},
+							{
+								"id": "10",
+								"description": "Loan to Park",
+								"amount": -5000
+							},
+							{
+								"id": "13",
+								"description": "Pay supplier",
+								"amount": -2000
+							},
+							{
+								"id": "15",
+								"description": "Sell pre-paid rentals",
+								"amount": 1200
+							},
+							{
+								"id": "16",
+								"description": "Receive rental revenue",
+								"amount": 120100
+							},
+							{
+								"id": "17",
+								"description": "Pay for inventory",
+								"amount": -38000
+							},
+							{
+								"id": "18",
+								"description": "Sales of sundries",
+								"amount": 35000
+							},
+							{
+								"id": "20",
+								"description": "Pay salaries",
+								"amount": -82000
+							}
+						],
+						"total": 17400
+					},
+					"investing": {
+						"transactions": [
+							{
+								"id": "04",
+								"description": "Buy building and land",
+								"amount": -155000
+							},
+							{
+								"id": "05",
+								"description": "Building renovation",
+								"amount": -33000
+							},
+							{
+								"id": "06",
+								"description": "Buy metal detectors",
+								"amount": -120000
+							},
+							{
+								"id": "08",
+								"description": "Pay for software site license",
+								"amount": -2100
+							}
+						],
+						"total": -310100
+					}
+				}
+			});
 		});
 	});
 
