@@ -13,7 +13,7 @@ export const INITIAL_STATE = Map();
  * - description: string - optional
  * - details: string - optional additional details for personal notes
  * - tags: object - optional Tags map from tag to value
- * - accounts: object - map from account name to array of AccountEntry
+ * - accounts: IndirectMap - an IndirectMap from account name to array of AccountEntry
  *
  * AccountEntry:
  * - amount: Amount
