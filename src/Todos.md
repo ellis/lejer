@@ -22,9 +22,11 @@
 	* [x] add basename and index to each entry
 * [x] `register`: should update state with map from index to entry (add from main-repl, to a field like `repl.registerIndexes`)
 * [x] server: create an Amount class (amounts.js)
-* [ ] core2.js: use an IndirectMap for the accounts?
+* [x] core2.js: use a PlaceholderMap for the accounts
+* [x] server: coreTest: working on reports (Cash Flows)
+* [ ] move server/{core,Amount,PlaceholderMap} to lib/
 * [ ] start putting my data into the server
-* [ ] server: coreTest: working on reports (Cash Flows)
+* [ ] server: core2.js: implement indirect method for operating cash flows
 * [ ] repl: `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
 * [ ] repl: `a 1` should start an interactive assignment of accounts to entry 1, especially for when multiple accounts need to be added
 * [ ] repl: add a command to list recent entries
