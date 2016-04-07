@@ -3,7 +3,7 @@ import {List, Map, fromJS} from 'immutable';
 import naturalSort from 'javascript-natural-sort';
 import {expect} from 'chai';
 
-import {mergeTransaction} from '../src/core2.js';
+import {mergeTransaction} from '../lib/core.js';
 
 const RelicSpotter = {
 	"01": {

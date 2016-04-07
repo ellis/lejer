@@ -24,7 +24,7 @@
 * [x] server: create an Amount class (amounts.js)
 * [x] core2.js: use a PlaceholderMap for the accounts
 * [x] server: coreTest: working on reports (Cash Flows)
-* [ ] move server/{core,Amount,PlaceholderMap} to lib/
+* [x] move server/{core,Amount,PlaceholderMap} to lib/
 * [ ] start putting my data into the server
 * [ ] server: core2.js: implement indirect method for operating cash flows
 * [ ] repl: `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value

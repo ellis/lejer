@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { List, Map, fromJS } from 'immutable';
 import naturalSort from 'javascript-natural-sort';
 import moment from 'moment';
-import * as Amount from './amount.js';
+import * as Amount from './Amount.js';
 import * as PlaceholderMap from './PlaceholderMap.js';
 
 export const INITIAL_STATE = Map();

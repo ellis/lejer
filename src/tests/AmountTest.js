@@ -2,7 +2,7 @@ import _ from 'lodash';
 import {List, Map, fromJS} from 'immutable';
 import {expect} from 'chai';
 
-import * as Amount from '../src/amount.js';
+import * as Amount from '../lib/Amount.js';
 
 const configEUR = {defaultCurrency: "EUR"};
 
