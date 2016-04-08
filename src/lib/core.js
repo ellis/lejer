@@ -6,7 +6,7 @@ import * as Amount from './Amount.js';
 import * as PlaceholderMap from './PlaceholderMap.js';
 
 export const INITIAL_STATE = Map();
-
+Error.stackTraceLimit = Infinity;
 /*
  * Transaction
  * - date: string - ISO datetime
@@ -21,6 +21,7 @@ export const INITIAL_STATE = Map();
  * - tags: Tags map, string -> any
  */
 export function mergeTransaction(state, basename, entryId, t) {
+	console.log("mergeTransaction: "+JSON.stringify({state, basename, entryId, t}))
 	entryId = entryId.toString();
 	state = state.mergeDeepIn(["transactions", basename, entryId], fromJS(t));
 
@@ -54,7 +55,9 @@ export function mergeTransaction(state, basename, entryId, t) {
 
 function iterateAccounts(accounts, fn) {
 	const l = PlaceholderMap.toPairs(accounts);
+	console.log({accounts})
 	l.forEach(([accountName, accountEntries]) => {
+		console.log({accountName, accountEntries})
 		accountEntries.forEach(accountEntry => fn(accountName, accountEntry));
 	});
 }
