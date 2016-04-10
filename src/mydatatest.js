@@ -23,7 +23,7 @@ files2.forEach(file => {
 	_.merge(data, content);
 });
 
-console.log(JSON.stringify(data, null, '\t'))
+// console.log(JSON.stringify(data, null, '\t'))
 
 let state = core.INITIAL_STATE;
 
@@ -33,3 +33,5 @@ _.forEach(data, (transactions, basename) => {
 		state = core.mergeTransaction(state, basename, id, t);
 	});
 });
+
+console.log(JSON.stringify(state.toJS(), null, '\t'))

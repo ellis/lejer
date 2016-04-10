@@ -21,7 +21,7 @@ Error.stackTraceLimit = Infinity;
  * - tags: Tags map, string -> any
  */
 export function mergeTransaction(state, basename, entryId, t) {
-	console.log("mergeTransaction: "+JSON.stringify({state, basename, entryId, t}))
+	// console.log("mergeTransaction: "+JSON.stringify({state, basename, entryId, t}))
 	entryId = entryId.toString();
 	state = state.mergeDeepIn(["transactions", basename, entryId], fromJS(t));
 
@@ -55,10 +55,11 @@ export function mergeTransaction(state, basename, entryId, t) {
 
 function iterateAccounts(accounts, fn) {
 	const l = PlaceholderMap.toPairs(accounts);
-	console.log({accounts})
+	// console.log({accounts})
 	l.forEach(([accountName, accountEntries]) => {
-		console.log({accountName, accountEntries})
-		accountEntries.forEach(accountEntry => fn(accountName, accountEntry));
+		// console.log({accountName, accountEntries})
+		const l = (_.isArray(accountEntries)) ? accountEntries : [accountEntries];
+		l.forEach(accountEntry => fn(accountName, accountEntry));
 	});
 }
 

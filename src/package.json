@@ -38,6 +38,7 @@
     "should": "~7.0.1"
   },
   "scripts": {
+		"aqcsv": "babel-node -- lib/main-aqcsv.js",
     "test": "mocha --compilers js:babel-core/register --recursive tests/",
     "test:watch": "npm run test -- --watch",
     "jsdoc": "jsdoc -r -c jsdoc.json --readme README.md --tutorials tutorials",
