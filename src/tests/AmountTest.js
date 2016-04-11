@@ -57,7 +57,7 @@ describe('amount', () => {
 		});
 
 		it("should add '-42' + '84'", () => {
-			expect(Amount.add('-42', '84')).to.deep.equal({"": 42});
+			expect(Amount.add('-42', '84')).to.deep.equal(42);
 		});
 
 		it("should add '-42' + '84' with defaultCurrency=EUR", () => {
@@ -70,6 +70,14 @@ describe('amount', () => {
 
 		it("should add '-42 EUR' + '84USD'", () => {
 			expect(Amount.add('-42 EUR', '84USD')).to.deep.equal({"EUR": -42, "USD": 84});
+		});
+
+		it("should add '-42 EUR' + '0'", () => {
+			expect(Amount.add('-42 EUR', '0')).to.deep.equal({"EUR": -42});
+		});
+
+		it("should add '-42 EUR' + 0", () => {
+			expect(Amount.add('-42 EUR', 0)).to.deep.equal({"EUR": -42});
 		});
 
 	});
