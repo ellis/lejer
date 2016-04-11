@@ -20,17 +20,18 @@ Error.stackTraceLimit = Infinity;
  * - amount: Amount
  * - tags: Tags map, string -> any
  */
-export function mergeTransaction(state, basename, entryId, t) {
+export function mergeTransaction(state, basename, index, t) {
 	// console.log("mergeTransaction: "+JSON.stringify({state, basename, entryId, t}))
-	entryId = entryId.toString();
-	state = state.mergeDeepIn(["transactions", basename, entryId], fromJS(t));
+	index = index.toString();
+	const id = t.id.toString();
+	state = state.mergeDeepIn(["transactions", basename, index], fromJS(t));
 
 	const phase = _.get(t, "transactionType", "unadjusted");
 	iterateAccounts(t.accounts, (accountName, accountEntry) => {
 		const amount = accountEntry.amount || 0;
 
 		// Add transaction to accountEntries
-		state = state.updateIn(["accountEntries", accountName, phase, "entries", entryId], 0, n => Amount.add(n, amount));
+		state = state.updateIn(["accountEntries", accountName, phase, "entries", id], 0, n => Amount.add(n, amount));
 		state = state.updateIn(["accountEntries", accountName, phase, "sum"], 0, n => Amount.add(n, amount));
 		const sumInOut = (amount < 0) ? "sumOut" : "sumIn";
 		state = state.updateIn(["accountEntries", accountName, phase, sumInOut], 0, n => Amount.add(n, amount));

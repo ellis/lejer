@@ -6,7 +6,7 @@ import {expect} from 'chai';
 import {mergeTransaction} from '../lib/core.js';
 
 const RelicSpotter = {
-	"01": {
+	"001": {
 		id: "01",
 		date: "2012-04-01",
 		description: "Sell shares",
@@ -16,7 +16,7 @@ const RelicSpotter = {
 			"equity:additional paid-in capital": [{amount: -225000}],
 		}}
 	},
-	"03": {
+	"003": {
 		id: "03",
 		date: "2012-04-02",
 		description: "Legal fees",
@@ -25,7 +25,7 @@ const RelicSpotter = {
 			"expenses:period:legal fees": [{amount: 3900}]
 		}}
 	},
-	"04": {
+	"004": {
 		id: "04",
 		date: "2012-04-07",
 		description: "Buy building and land",
@@ -36,7 +36,7 @@ const RelicSpotter = {
 			"assets:long-term:land": [{amount: 103000}]
 		}}
 	},
-	"05": {
+	"005": {
 		id: "05",
 		date: "2012-05-25",
 		description: "Building renovation",
@@ -46,7 +46,7 @@ const RelicSpotter = {
 			"assets:long-term:buildings": [{amount: 33000}],
 		}}
 	},
-	"06": {
+	"006": {
 		id: "06",
 		date: "2012-06-02",
 		description: "Buy metal detectors",
@@ -56,7 +56,7 @@ const RelicSpotter = {
 			"assets:long-term:equipment": [{amount: 120000}],
 		}}
 	},
-	"07": {
+	"007": {
 		id: "07",
 		date: "2012-06-30",
 		description: "Buy sundries",
@@ -65,7 +65,7 @@ const RelicSpotter = {
 			"liabilities:current:accounts payable": [{amount: -2000}],
 		}}
 	},
-	"08": {
+	"008": {
 		id: "08",
 		date: "2012-06-30",
 		description: "Pay for software site license",
@@ -75,7 +75,7 @@ const RelicSpotter = {
 			"assets:intangible:prepaid software": [{amount: 2100}],
 		}}
 	},
-	"09": {
+	"009": {
 		id: "09",
 		date: "2012-06-30",
 		description: "Buy advertising",
@@ -267,8 +267,8 @@ describe('core logic', () => {
 	describe('mergeTransaction', () => {
 
 		it('merges transaction 01 into state', () => {
-			const ids = ["01"];
-			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
+			const indexes = ["001"];
+			const state = _.reduce(indexes, (state, indexes) => mergeTransaction(state, "RelicSpotter", indexes, RelicSpotter[indexes]), Map());
 			// console.log(JSON.stringify(state, null, '\t'))
 			const state2 = state.toJS();
 			expect(state2.accountEntries).to.deep.equal({
@@ -293,8 +293,8 @@ describe('core logic', () => {
 		});
 
 		it('merges transaction 03 into state', () => {
-			const ids = ["01", "03"];
-			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
+			const indexes = ["001", "003"];
+			const state = _.reduce(indexes, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
 			// console.log(JSON.stringify(state, null, '\t'))
 			const state2 = state.toJS();
 			expect(state2.accountEntries).to.deep.equal({
@@ -330,8 +330,8 @@ describe('core logic', () => {
 		});
 
 		it('merges transaction 04 into state', () => {
-			const ids = ["01", "03", "04"];
-			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
+			const indexes = ["001", "003", "004"];
+			const state = _.reduce(indexes, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
 			// console.log(JSON.stringify(state, null, '\t'))
 			const state2 = state.toJS();
 			expect(state2.accountEntries).to.deep.equal({
