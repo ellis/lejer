@@ -23,6 +23,10 @@ files2.forEach(file => {
 	_.merge(data, content);
 });
 
+filesDiffs.forEach(file => {
+	CONTINUE
+});
+
 // console.log(JSON.stringify(data, null, '\t'))
 
 let state = core.INITIAL_STATE;

@@ -27,6 +27,7 @@
 * [x] move server/{core,Amount,PlaceholderMap} to lib/
 * [x] why is sumIn = sum for various accounts?
 * [ ] start putting my data into the server
+	* [ ] read in diffs from .user files
 * [ ] server: core2.js: implement indirect method for operating cash flows
 * [ ] repl: `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
 * [ ] repl: `a 1` should start an interactive assignment of accounts to entry 1, especially for when multiple accounts need to be added
