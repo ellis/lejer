@@ -17,6 +17,7 @@
     "js-yaml": "^3.4.6",
     "jsonfile": "^2.2.2",
     "lodash": "^4.8.2",
+    "mathjs": "^3.1.4",
     "mkdirp": "^0.5.1",
     "moment": "^2.11.0",
     "mustache": "^2.2.1",
@@ -38,7 +39,7 @@
     "should": "~7.0.1"
   },
   "scripts": {
-		"aqcsv": "babel-node -- lib/main-aqcsv.js",
+    "aqcsv": "babel-node -- lib/main-aqcsv.js",
     "test": "mocha --compilers js:babel-core/register --recursive tests/",
     "test:watch": "npm run test -- --watch",
     "jsdoc": "jsdoc -r -c jsdoc.json --readme README.md --tutorials tutorials",

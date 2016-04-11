@@ -82,6 +82,18 @@ describe('amount', () => {
 
 	});
 
+	describe("compareToZero", () => {
+		it("should handle undefined", () => { expect(Amount.compareToZero(undefined)).to.deep.equal(0); });
+		it("should handle 0", () => { expect(Amount.compareToZero(0)).to.deep.equal(0); });
+		it("should handle 10", () => { expect(Amount.compareToZero(10)).to.deep.equal(1); });
+		it("should handle -10", () => { expect(Amount.compareToZero(-10)).to.deep.equal(-1); });
+		it("should handle '10'", () => { expect(Amount.compareToZero('10')).to.deep.equal(1); });
+		it("should handle '-10 EUR'", () => { expect(Amount.compareToZero('-10 EUR')).to.deep.equal(-1); });
+		it("should handle '10 EUR + 3 USD'", () => { expect(Amount.compareToZero({EUR: 10, USD: 3})).to.deep.equal(1); });
+		it("should handle '-10 EUR + -3 USD'", () => { expect(Amount.compareToZero({EUR: -10, USD: -3})).to.deep.equal(-1); });
+		it("should handle '-10 EUR + 3 USD'", () => { expect(Amount.compareToZero({EUR: -10, USD: 3})).to.deep.equal(0); });
+	});
+
 	describe("subtract", () => {
 		it("should subtract -42 - -84", () => {
 			expect(Amount.subtract(-42, -84)).to.deep.equal(42);

@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import assert from 'assert';
+import math from 'mathjs';
 
 export function normalize(x, config = {}) {
 	// console.log({config})
@@ -40,6 +41,38 @@ export function simplify(x) {
 	}
 	// console.log({result2})
 	return result2;
+}
+
+export function compareToZero(amount) {
+	if (_.isUndefined(amount))
+		return 0
+	else if (_.isNumber(amount)) {
+		return math.compare(amount, 0);
+	}
+	else {
+		amount = normalize(amount);
+
+		let result = 0;
+		const keys = Object.keys(amount);
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i];
+			const value = amount[key];
+			// console.log({key, value})
+			if (value) {
+				const result1 = math.compare(value, 0);
+				if (result1 !== 0) {
+					if (result === 0) {
+						result = result1;
+					}
+					else if (result1 !== result) {
+						return 0;
+					}
+				}
+			}
+		}
+		// console.log({result2})
+		return result;
+	}
 }
 
 export function add(amounts1, amounts2, config) {
