@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import fs from 'fs';
+import jiff from 'jiff';
 import jsonfile from 'jsonfile';
+import LineByLineReader from 'n-readlines';
 import path from 'path';
 
 import * as core from './lib/core.js';
@@ -24,7 +26,14 @@ files2.forEach(file => {
 });
 
 filesDiffs.forEach(file => {
-	CONTINUE
+	const lr = new LineByLineReader(path.join(dir, file));
+
+	let line;
+	while (line = lr.next()) {
+		const s = line.toString('utf8');
+		const patch = JSON.parse(s);
+		jiff.patchInPlace(patch, data);
+	}
 });
 
 // console.log(JSON.stringify(data, null, '\t'))
