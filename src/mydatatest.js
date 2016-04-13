@@ -7,7 +7,7 @@ import path from 'path';
 
 import * as core from './lib/core.js';
 
-const dir = "/Volumes/Private Repo/finances/2015/Data";
+const dir = "/Volumes/Private Repo/finances/2015/Data/tmp";
 const files = fs.readdirSync(dir);
 // console.log(files.filter(file => path.extname(file) === ".orig"), files.filter(file => path.extname(file) === ".auto"));
 const files2 = _.concat(

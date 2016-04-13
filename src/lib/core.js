@@ -23,6 +23,7 @@ Error.stackTraceLimit = Infinity;
 export function mergeTransaction(state, basename, index, t) {
 	// console.log("mergeTransaction: "+JSON.stringify({state, basename, entryId, t}))
 	index = index.toString();
+	fillMissingAmount(t.accounts);
 	const id = t.id.toString();
 	state = state.mergeDeepIn(["transactions", basename, index], fromJS(t));
 
@@ -54,14 +55,62 @@ export function mergeTransaction(state, basename, index, t) {
 	return state;
 }
 
+function fillMissingAmount(accounts) {
+	const l = PlaceholderMap.toPairsWithPaths(accounts);
+	// console.log({l})
+	let last = undefined;
+	let lastAmount = 0;
+	// console.log({accounts})
+	l.forEach(([accountPath, accountEntries]) => {
+		const isArray = _.isArray(accountEntries) && !_.isEmpty(accountEntries);
+		const isObject = _.isPlainObject(accountEntries);
+		// console.log({accountName, accountEntries})
+		const l
+			= (isArray) ? accountEntries
+			: (isObject) ? [accountEntries]
+			: [{}];
+		l.forEach((accountEntry, i) => {
+			// If an entry is missing an amount, fill it in last.
+			if (!accountEntry.amount) {
+				last = accountPath.concat([i]);
+			}
+			else {
+				lastAmount = Amount.subtract(lastAmount, accountEntry.amount);
+			}
+		});
+		_.set(accounts, accountPath, l);
+	});
+
+	if (last) {
+		_.set(accounts, last.concat(["amount"]), lastAmount);
+	}
+}
+
 function iterateAccounts(accounts, fn) {
 	const l = PlaceholderMap.toPairs(accounts);
+	let last = undefined;
+	let lastAmount = 0;
 	// console.log({accounts})
 	l.forEach(([accountName, accountEntries]) => {
 		// console.log({accountName, accountEntries})
 		const l = (_.isArray(accountEntries)) ? accountEntries : [accountEntries];
-		l.forEach(accountEntry => fn(accountName, accountEntry));
+		l.forEach(accountEntry => {
+			// If an entry is missing an amount, fill it in last.
+			// console.log({accountEntry})
+			if (!accountEntry.amount) {
+				last = [accountName, accountEntry];
+			}
+			else {
+				lastAmount = Amount.subtract(lastAmount, accountEntry.amount);
+				fn(accountName, accountEntry);
+			}
+		});
 	});
+
+	if (last) {
+		console.log({last, lastAmount})
+		fn(last[0], _.merge({}, last[1], {amount: lastAmount}));
+	}
 }
 
 function addTransactionToReportCash(state, t) {

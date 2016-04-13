@@ -23,6 +23,24 @@ export function toPairs(pm, placeholderPrefix = "@") {
 	return pairs;
 }
 
+export function toPairsWithPaths(pm, placeholderPrefix = "@") {
+	const pairs = [];
+	const len = placeholderPrefix.length;
+	for (const key in pm) {
+		const value = pm[key];
+		const prefix = key.substr(0, len);
+		if (prefix === placeholderPrefix) {
+			const pairs2 = _.toPairs(value).map(([key2, value2]) => [[key, key2], value2]);
+			// console.log({key, pairs2: JSON.stringify(pairs2)})
+			pairs.push.apply(pairs, pairs2);
+		}
+		else {
+			pairs.push([[key], value]);
+		}
+	}
+	return pairs;
+}
+
 export function toObject(pm, placeholderPrefix = "@") {
 	return _.fromPairs(toPairs(pm, placeholderPrefix));
 }

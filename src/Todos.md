@@ -27,8 +27,11 @@
 * [x] move server/{core,Amount,PlaceholderMap} to lib/
 * [x] why is sumIn = sum for various accounts?
 * [ ] start putting my data into the server
-	* [ ] see /Volumes/Private Repo/finances/2015/Data/tmp
-	* [ ] why aren't `@user` account entries merged?
+	* [x] see /Volumes/Private Repo/finances/2015/Data/tmp
+	* [x] why aren't `@user` account entries merged?
+	* [x] fill in missing amount of transaction
+	* [ ] AUTOMATIC: C2_2015: why not C1_2015?
+	* [ ] AUTOMATIC.C2_2015.accounts.expenses:personal:Bildung.amount: why is it null?
 	* [ ] read in diffs from .user files
 * [ ] server: core2.js: implement indirect method for operating cash flows
 * [ ] repl: `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
