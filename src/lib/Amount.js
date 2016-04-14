@@ -94,8 +94,15 @@ export function subtract(amounts1, amounts2, config) {
 	}
 	const a1 = normalize(amounts1, config);
 	const a2 = normalize(amounts2, config);
-	// console.log({a1, a2})
+	// Since we're subtracting, make sure all keys in a2 are either in a1, or set those keys in a1 to 0.
+	const keys2 = Object.keys(a2);
+	for (const key of keys2) {
+		if (!a1.hasOwnProperty(key)) {
+			a1[key] = 0;
+		}
+	}
 	const customizer = (n1, n2) => (_.isNumber(n1) && _.isNumber(n2)) ? n1 - n2 : undefined;
 	const result = _.mergeWith(_.clone(a1), a2, customizer);
+	// console.log({a1, a2, result, simplified: simplify(result)})
 	return simplify(result);
 }

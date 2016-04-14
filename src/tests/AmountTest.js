@@ -95,6 +95,10 @@ describe('amount', () => {
 	});
 
 	describe("subtract", () => {
+		it("should subtract 0 - '-10 EUR'", () => {
+			expect(Amount.subtract(0, "-10 EUR")).to.deep.equal({"EUR": 10});
+		});
+
 		it("should subtract -42 - -84", () => {
 			expect(Amount.subtract(-42, -84)).to.deep.equal(42);
 		});

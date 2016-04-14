@@ -30,9 +30,9 @@
 	* [x] see /Volumes/Private Repo/finances/2015/Data/tmp
 	* [x] why aren't `@user` account entries merged?
 	* [x] fill in missing amount of transaction
-	* [ ] AUTOMATIC: C2_2015: why not C1_2015?
-	* [ ] AUTOMATIC.C2_2015.accounts.expenses:personal:Bildung.amount: why is it null?
-	* [ ] read in diffs from .user files
+	* [x] AUTOMATIC.C2_2015.accounts.expenses:personal:Bildung.amount: why is it null?
+	* [x] read in diffs from .user files
+	* [ ] add some income entries
 * [ ] server: core2.js: implement indirect method for operating cash flows
 * [ ] repl: `a 1 <account> <value>` should set the `accounts.user` value to `<account>` for the first entry in the most recent `register` listing, and optionally set a value
 * [ ] repl: `a 1` should start an interactive assignment of accounts to entry 1, especially for when multiple accounts need to be added
