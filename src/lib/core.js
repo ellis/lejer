@@ -85,10 +85,12 @@ function fillMissingAmount(accounts) {
 	l.forEach(([accountPath, accountEntries]) => {
 		const isArray = _.isArray(accountEntries) && !_.isEmpty(accountEntries);
 		const isObject = _.isPlainObject(accountEntries);
+		const isNumberOrString = _.isNumber(accountEntries) || _.isString(accountEntries);
 		// console.log({accountName, accountEntries})
 		const l
 			= (isArray) ? accountEntries
 			: (isObject) ? [accountEntries]
+			: (isNumberOrString) ? [{amount: Amount.simplify(Amount.normalize(accountEntries))}]
 			: [{}];
 		l.forEach((accountEntry, i) => {
 			// If an entry is missing an amount, fill it in last.

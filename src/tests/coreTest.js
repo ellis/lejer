@@ -836,6 +836,59 @@ describe('core logic', () => {
 				}
 			});
 		});
+
+		it("should accept numeric values as AmountEntries", () => {
+			const t = {
+				id: "001",
+				accounts: {
+					"@bank": { "assets:current:cash:Volksbank:Giro": 238 },
+					"@user": {
+						"assets:current:accounts receivable": -200,
+						"revenues:pending:sales": 200,
+						"revenues:primary:sales": -200,
+						"liabilities:current:salestax:received": 38
+					}
+				}
+			};
+			const state = mergeTransaction(Map(), "test", "1", t);
+			const state2 = state.toJS();
+			// console.log(JSON.stringify(_.omit(state2, "transactions"), null, '\t'));
+			// console.log(JSON.stringify(state2.transactions, null, '\t'));
+			expect(state2.transactions.test["1"]).to.deep.equal({
+				"id": "001",
+				"accounts": {
+					"@bank": {
+						"assets:current:cash:Volksbank:Giro": [
+							{
+								"amount": 238
+							}
+						]
+					},
+					"@user": {
+						"assets:current:accounts receivable": [
+							{
+								"amount": -200
+							}
+						],
+						"revenues:pending:sales": [
+							{
+								"amount": 200
+							}
+						],
+						"revenues:primary:sales": [
+							{
+								"amount": -200
+							}
+						],
+						"liabilities:current:salestax:received": [
+							{
+								"amount": 38
+							}
+						]
+					}
+				}
+			});
+		});
 	});
 
 });

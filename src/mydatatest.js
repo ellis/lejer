@@ -25,6 +25,8 @@ files2.forEach(file => {
 	_.merge(data, content);
 });
 
+console.log(JSON.stringify(data, null, '\t'))
+
 filesDiffs.forEach(file => {
 	const lr = new LineByLineReader(path.join(dir, file));
 
