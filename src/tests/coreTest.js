@@ -266,7 +266,7 @@ describe('core logic', () => {
 
 	describe('mergeTransaction', () => {
 
-		it('merges transaction 01 into state', () => {
+		it.only('merges transaction 01 into state', () => {
 			const indexes = ["001"];
 			const state = _.reduce(indexes, (state, indexes) => mergeTransaction(state, "RelicSpotter", indexes, RelicSpotter[indexes]), Map());
 			// console.log(JSON.stringify(state, null, '\t'))
@@ -282,14 +282,10 @@ describe('core logic', () => {
 					"unadjusted": { "entries": { "01": -225000 }, "sum": -225000, "sumOut": -225000 }
 				}
 			});
-			expect(state2.reports.cash).to.deep.equal({
-				"2012": [
-					{ "id": "01", "date": "2012-04-01", "cash": 250000, "financing": 250000 }
-				]
-			});
-			expect(state2.reports.income).to.deep.equal({
-				"2012": {}
-			});
+			expect(state2["2012"].reports.cash).to.deep.equal([
+				{ "id": "01", "date": "2012-04-01", "cash": 250000, "financing": 250000 }
+			]);
+			expect(state2["2012"].reports.income).to.deep.equal({});
 		});
 
 		it('merges transaction 03 into state', () => {
@@ -311,13 +307,11 @@ describe('core logic', () => {
 					"unadjusted": { "entries": { "03": 3900 }, "sum": 3900, "sumIn": 3900 }
 				}
 			});
-			expect(state2.reports.cash).to.deep.equal({
-				"2012": [
-					{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
-					{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 }
-				]
-			});
-			expect(state2.reports.income).to.deep.equal({
+			expect(state2["2012"].reports.cash).to.deep.equal([
+				{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
+				{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 }
+			]);
+			expect(state2["2012"].reports.income).to.deep.equal({
 				"2012": {
 					"periodExpenses": {
 						"accounts": {
@@ -358,7 +352,7 @@ describe('core logic', () => {
 					"unadjusted": { "entries": { "04": 103000 }, "sum": 103000, "sumIn": 103000 }
 				},
 			});
-			expect(state2.reports.cash).to.deep.equal({
+			expect(state2["2012"].reports.cash).to.deep.equal({
 				"2012": [
 					{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
 					{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 },
@@ -366,7 +360,7 @@ describe('core logic', () => {
 					{ "date": "2012-04-07", "id": "04", "cash": -155000, "investing": -155000 },
 				]
 			});
-			expect(state2.reports.income).to.deep.equal({
+			expect(state2["2012"].reports.income).to.deep.equal({
 				"2012": {
 					"periodExpenses": {
 						"accounts": {
@@ -454,7 +448,7 @@ describe('core logic', () => {
 					"unadjusted": { "entries": { "16": -124300 }, "sum": -124300, "sumOut": -124300 }
 				}
 			});
-			expect(state2.reports.cash).to.deep.equal({
+			expect(state2["2012"].reports.cash).to.deep.equal({
 				"2012": [
 					{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
 					{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 },
@@ -474,7 +468,7 @@ describe('core logic', () => {
 					{ "date": "2012-12-31", "id": "20", "cash": -82000, "operating": -82000 },
 				]
 			});
-			expect(state2.reports.income).to.deep.equal({
+			expect(state2["2012"].reports.income).to.deep.equal({
 				"2012": {
 					"revenues": {
 						"accounts": {
@@ -612,7 +606,7 @@ describe('core logic', () => {
 					"adjusting": {"entries": { "27": -100 }, "sum": -100, "sumOut": -100 }
 				}
 			});
-			expect(state2.reports.cash).to.deep.equal({
+			expect(state2["2012"].reports.cash).to.deep.equal({
 				"2012": [
 					{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
 					{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 },
@@ -632,7 +626,7 @@ describe('core logic', () => {
 					{ "date": "2012-12-31", "id": "20", "cash": -82000, "operating": -82000 },
 				]
 			});
-			expect(state2.reports.income).to.deep.equal({
+			expect(state2["2012"].reports.income).to.deep.equal({
 				"2012": {
 					"revenues": {
 						"accounts": {
@@ -672,7 +666,7 @@ describe('core logic', () => {
 					}
 				}
 			});
-			expect(state2.reports.balance).to.deep.equal({
+			expect(state2["2012"].reports.balance).to.deep.equal({
 				"2012": {
 					"assetsCurrent": {
 						"accounts": {
@@ -736,7 +730,7 @@ describe('core logic', () => {
 				}
 			});
 			// console.log(JSON.stringify(state.toJS().reports.cashflow, null, '\t'));
-			expect(state2.reports.cashflow).to.deep.equal({
+			expect(state2["2012"].reports.cashflow).to.deep.equal({
 				"2012": {
 					"financing": {
 						"transactions": [

@@ -48,25 +48,7 @@ export function mergeTransaction(state, basename, index, t) {
 	const id = t.id.toString();
 	state = state.mergeDeepIn(["transactions", basename, index], fromJS(t));
 
-	const phase = _.get(t, "transactionType", "unadjusted");
-	iterateAccounts(t.accounts, (accountName, accountEntry) => {
-		const amount = accountEntry.amount || 0;
-
-		// Add transaction to accountEntries
-		state = state.updateIn(["accountEntries", accountName, phase, "entries", id], 0, n => addAmountsIM(n, amount));
-		state = state.updateIn(["accountEntries", accountName, phase, "sum"], 0, n => addAmountsIM(n, amount));
-		const sumInOut = (Amount.compareToZero(amount) < 0) ? "sumOut" : "sumIn";
-		state = state.updateIn(["accountEntries", accountName, phase, sumInOut], 0, n => addAmountsIM(n, amount));
-
-		/*// Add cash transaction to cashTransactionEntries
-		const cashActivity = _.get(accountEntry, ["tags", "reports/cash/activity"]);
-		if (cashActivity) {
-			state = state.updateIn(["reports", "cash"], List(), l => {
-				return l.push(fromJS(_.merge({}, {date: t.date, id: t.id, cash: amount, [cashActivity]: amount})));
-			});
-		}*/
-	});
-
+	state = addTransactionToAccountEntries(state, t);
 	state = addTransactionToReportCash(state, t);
 	state = addTransactionToReportIncome(state, t);
 	state = addTransactionToReportBalance(state, t);
@@ -122,6 +104,31 @@ function iterateAccounts(accounts, fn) {
 	});
 }
 
+function addTransactionToAccountEntries(state, t) {
+	const date = t.date;
+	const phase = _.get(t, "transactionType", "unadjusted");
+	iterateAccounts(t.accounts, (accountName, accountEntry) => {
+		const amount = accountEntry.amount || 0;
+		const period = moment(date, "YYYY-MM-DD").year().toString();
+
+		// Add transaction to accountEntries
+		const id = t.id.toString();
+		state = state.updateIn(["periods", period, "accountEntries", accountName, phase, "entries", id], 0, n => addAmountsIM(n, amount));
+		state = state.updateIn(["periods", period, "accountEntries", accountName, phase, "sum"], 0, n => addAmountsIM(n, amount));
+		const sumInOut = (Amount.compareToZero(amount) < 0) ? "sumOut" : "sumIn";
+		state = state.updateIn(["periods", period, "accountEntries", accountName, phase, sumInOut], 0, n => addAmountsIM(n, amount));
+
+		/*// Add cash transaction to cashTransactionEntries
+		const cashActivity = _.get(accountEntry, ["tags", "reports/cash/activity"]);
+		if (cashActivity) {
+			state = state.updateIn(["reports", "cash"], List(), l => {
+				return l.push(fromJS(_.merge({}, {date: t.date, id: t.id, cash: amount, [cashActivity]: amount})));
+			});
+		}*/
+	});
+	return state;
+}
+
 function addTransactionToReportCash(state, t) {
 	const date0 = _.get(t, ["tags", "report/cash/date"], t.date);
 
@@ -133,7 +140,7 @@ function addTransactionToReportCash(state, t) {
 		// Add cash transaction to cashTransactionEntries
 		if (cashActivity && date) {
 			const period = moment(date, "YYYY-MM-DD").year().toString();
-			state = state.updateIn(["reports", "cash", period], List(), l => {
+			state = state.updateIn(["periods", period, "reports", "cash"], List(), l => {
 				return l.push(fromJS(_.merge({}, {date: t.date, id: t.id, cash: amount, [cashActivity]: amount})));
 			});
 		}
@@ -155,7 +162,7 @@ function addTransactionToReportIncome(state, t) {
 		}
 
 		const period = moment(date, "YYYY-MM-DD").year().toString();
-		let report = state.getIn(["reports", "income", period], Map());
+		let report = state.getIn(["periods", period, "reports", "income"], Map());
 		const accountPath = accountName.split(":");
 		// console.log({accountPath})
 		if (_.isEqual(["revenues", "primary"], _.take(accountPath, 2))) {
@@ -195,7 +202,7 @@ function addTransactionToReportIncome(state, t) {
 				.updateIn(["incomeTax", "total"], 0, n => subtractAmountsIM(n, amount));
 		}
 
-		state = state.setIn(["reports", "income", period], report);
+		state = state.setIn(["periods", period, "reports", "income"], report);
 	});
 
 	return state;
@@ -214,7 +221,7 @@ function addTransactionToReportBalance(state, t) {
 		}
 
 		const period = moment(date, "YYYY-MM-DD").year().toString();
-		let report = state.getIn(["reports", "balance", period], Map());
+		let report = state.getIn(["periods", period, "reports", "balance"], Map());
 		const accountPath = accountName.split(":");
 		// console.log({accountPath})
 
@@ -268,7 +275,7 @@ function addTransactionToReportBalance(state, t) {
 				.updateIn(["creditsTotal", "total"], 0, n => subtractAmountsIM(n, amount));
 		}
 
-		state = state.setIn(["reports", "balance", period], report);
+		state = state.setIn(["periods", period, "reports", "balance"], report);
 	});
 
 	return state;
@@ -286,7 +293,7 @@ function addTransactionToReportCashflow(state, t) {
 		if (cashActivity && date) {
 			const period = moment(date, "YYYY-MM-DD").year().toString();
 
-			state = state.updateIn(["reports", "cashflow", period, cashActivity], Map(), m => {
+			state = state.updateIn(["periods", period, "reports", "cashflow", cashActivity], Map(), m => {
 				return m.updateIn(
 						["transactions"],
 						List(),
@@ -316,7 +323,7 @@ function updateClosingTransactions(state, t) {
 		}
 
 		const period = moment(date, "YYYY-MM-DD").year().toString();
-		let report = state.getIn(["reports", "balance", period], Map());
+		let report = state.getIn(["periods", period, "reports", "balance"], Map());
 		const accountPath = accountName.split(":");
 		// Date for end of period/year
 		const dateClosing = moment(`${period+1}-01-01`, "YYYY-MM-DD").subtract(1, 'day').format('YYYY-MM-DD');
@@ -367,7 +374,7 @@ function updateClosingTransactions(state, t) {
 				.updateIn(["equity", "accounts", "retained earnings"], 0, n => subtractAmountsIM(n, amount))
 				.updateIn(["equity", "total"], 0, n => subtractAmountsIM(n, amount))
 				.updateIn(["creditsTotal", "total"], 0, n => subtractAmountsIM(n, amount));
-				state = state.setIn(["reports", "balance", period], report);
+				state = state.setIn(["periods", period, "reports", "balance"], report);
 		}
 	});
 

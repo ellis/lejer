@@ -26,7 +26,8 @@
     "redux": "3.3.1",
     "socket.io": "1.4.5",
     "text-diff": "^1.0.1",
-    "vorpal": "^1.5.8"
+    "vorpal": "^1.5.8",
+    "yamljs": "^0.2.7"
   },
   "devDependencies": {
     "babel-cli": "^6.4.0",
