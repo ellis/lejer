@@ -361,7 +361,7 @@ function updateClosingTransactions(state, t) {
 			c1 = c1.updateIn(["accounts", accountName], 0, amount0 => subtractAmountsIM(amount0, amount));
 			// c1 = c1.updateIn(["accounts", "equity:retained earnings"], 0, amount0 => fromJS(Amount.add(amount0, amount)));
 			c1 = c1.updateIn(["accounts", "equity:retained earnings"], 0, amount0 => {
-				console.log({accountName, accountEntry, amount, amount0, sum: addAmountsIM(amount0, amount)});
+				// console.log({accountName, accountEntry, amount, amount0, sum: addAmountsIM(amount0, amount)});
 				return addAmountsIM(amount0, amount);
 			});
 			// console.log("C2: "+c1)

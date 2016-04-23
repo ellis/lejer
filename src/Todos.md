@@ -33,7 +33,7 @@
 	* [x] AUTOMATIC.C2_2015.accounts.expenses:personal:Bildung.amount: why is it null?
 	* [x] read in diffs from .user files
 	* [ ] add some income entries
-		* [ ] swapping periods and reports hierarchy; run `npm test`
+		* [x] swapping periods and reports hierarchy
 		* [ ] periods for 2014 and 2015 are getting mixed up in 'accountEntries'; consider adding 'periods' field to the state.
 * [ ] core.js: implement indirect method for operating cash flows
 * [ ] core:mergeTransaction: handle options, for default currency, filters

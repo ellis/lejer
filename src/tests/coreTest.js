@@ -266,12 +266,12 @@ describe('core logic', () => {
 
 	describe('mergeTransaction', () => {
 
-		it.only('merges transaction 01 into state', () => {
+		it('merges transaction 01 into state', () => {
 			const indexes = ["001"];
 			const state = _.reduce(indexes, (state, indexes) => mergeTransaction(state, "RelicSpotter", indexes, RelicSpotter[indexes]), Map());
-			// console.log(JSON.stringify(state, null, '\t'))
 			const state2 = state.toJS();
-			expect(state2.accountEntries).to.deep.equal({
+			// console.log(JSON.stringify(state2, null, '\t'))
+			expect(state2.periods["2012"].accountEntries).to.deep.equal({
 				"assets:current:cash": {
 					"unadjusted": { "entries": { "01": 250000 }, "sum": 250000, "sumIn": 250000 }
 				},
@@ -282,10 +282,10 @@ describe('core logic', () => {
 					"unadjusted": { "entries": { "01": -225000 }, "sum": -225000, "sumOut": -225000 }
 				}
 			});
-			expect(state2["2012"].reports.cash).to.deep.equal([
+			expect(state2.periods["2012"].reports.cash).to.deep.equal([
 				{ "id": "01", "date": "2012-04-01", "cash": 250000, "financing": 250000 }
 			]);
-			expect(state2["2012"].reports.income).to.deep.equal({});
+			expect(state2.periods["2012"].reports.income).to.deep.equal({});
 		});
 
 		it('merges transaction 03 into state', () => {
@@ -293,7 +293,7 @@ describe('core logic', () => {
 			const state = _.reduce(indexes, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
 			// console.log(JSON.stringify(state, null, '\t'))
 			const state2 = state.toJS();
-			expect(state2.accountEntries).to.deep.equal({
+			expect(state2.periods["2012"].accountEntries).to.deep.equal({
 				"assets:current:cash": {
 					"unadjusted": { "entries": { "01": 250000, "03": -3900 }, "sum": 246100, "sumIn": 250000, "sumOut": -3900 }
 				},
@@ -307,18 +307,16 @@ describe('core logic', () => {
 					"unadjusted": { "entries": { "03": 3900 }, "sum": 3900, "sumIn": 3900 }
 				}
 			});
-			expect(state2["2012"].reports.cash).to.deep.equal([
+			expect(state2.periods["2012"].reports.cash).to.deep.equal([
 				{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
 				{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 }
 			]);
-			expect(state2["2012"].reports.income).to.deep.equal({
-				"2012": {
-					"periodExpenses": {
-						"accounts": {
-							"legal fees": -3900
-						},
-						"total": -3900
-					}
+			expect(state2.periods["2012"].reports.income).to.deep.equal({
+				"periodExpenses": {
+					"accounts": {
+						"legal fees": -3900
+					},
+					"total": -3900
 				}
 			});
 		});
@@ -328,7 +326,7 @@ describe('core logic', () => {
 			const state = _.reduce(indexes, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
 			// console.log(JSON.stringify(state, null, '\t'))
 			const state2 = state.toJS();
-			expect(state2.accountEntries).to.deep.equal({
+			expect(state2.periods["2012"].accountEntries).to.deep.equal({
 				"assets:current:cash": {
 					"unadjusted": { "entries": { "01": 250000, "03": -3900, "04": -31000},
 					"sum": 215100, "sumIn": 374000, "sumOut": -158900 }
@@ -352,22 +350,18 @@ describe('core logic', () => {
 					"unadjusted": { "entries": { "04": 103000 }, "sum": 103000, "sumIn": 103000 }
 				},
 			});
-			expect(state2["2012"].reports.cash).to.deep.equal({
-				"2012": [
+			expect(state2.periods["2012"].reports.cash).to.deep.equal([
 					{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
 					{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 },
 					{ "date": "2012-04-07", "id": "04", "cash": 124000, "financing": 124000 },
 					{ "date": "2012-04-07", "id": "04", "cash": -155000, "investing": -155000 },
-				]
-			});
-			expect(state2["2012"].reports.income).to.deep.equal({
-				"2012": {
-					"periodExpenses": {
-						"accounts": {
-							"legal fees": -3900
-						},
-						"total": -3900
-					}
+			]);
+			expect(state2.periods["2012"].reports.income).to.deep.equal({
+				"periodExpenses": {
+					"accounts": {
+						"legal fees": -3900
+					},
+					"total": -3900
 				}
 			});
 		});
@@ -378,7 +372,7 @@ describe('core logic', () => {
 			const state = _.reduce(ids, (state, id) => mergeTransaction(state, "RelicSpotter", id, RelicSpotter[id]), Map());
 			// console.log(JSON.stringify(_.omit(state.toJS(), "transactions"), null, '\t'))
 			const state2 = state.toJS();
-			expect(state2.accountEntries).to.deep.equal({
+			expect(state2.periods["2012"].accountEntries).to.deep.equal({
 				"liabilities:current:unearned rental revenue": {
 					"unadjusted": { "entries": { "15": -1200 }, "sum": -1200, "sumOut": -1200 }
 				},
@@ -448,48 +442,44 @@ describe('core logic', () => {
 					"unadjusted": { "entries": { "16": -124300 }, "sum": -124300, "sumOut": -124300 }
 				}
 			});
-			expect(state2["2012"].reports.cash).to.deep.equal({
-				"2012": [
-					{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
-					{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 },
-					{ "date": "2012-04-07", "id": "04", "cash": 124000, "financing": 124000 },
-					{ "date": "2012-04-07", "id": "04", "cash": -155000, "investing": -155000 },
-					{ "date": "2012-05-25", "id": "05", "cash": -33000, "investing": -33000 },
-					{ "date": "2012-06-02", "id": "06", "cash": -120000, "investing": -120000 },
-					{ "date": "2012-06-30", "id": "08", "cash": -2100, "investing": -2100 },
-					{ "date": "2012-06-30", "id": "09", "cash": -8000, "operating": -8000 },
-					{ "date": "2012-06-30", "id": "10", "cash": -5000, "operating": -5000 },
-					{ "date": "2012-07-31", "id": "13", "cash": -2000, "operating": -2000 },
-					{ "date": "2012-08-31", "id": "14", "cash": -2500, "financing": -2500 },
-					{ "date": "2012-12-01", "id": "15", "cash": 1200, "operating": 1200 },
-					{ "date": "2012-12-31", "id": "16", "cash": 120100, "operating": 120100 },
-					{ "date": "2012-12-31", "id": "17", "cash": -38000, "operating": -38000 },
-					{ "date": "2012-12-31", "id": "18", "cash": 35000, "operating": 35000 },
-					{ "date": "2012-12-31", "id": "20", "cash": -82000, "operating": -82000 },
-				]
-			});
-			expect(state2["2012"].reports.income).to.deep.equal({
-				"2012": {
-					"revenues": {
-						"accounts": {
-							"rental": 124300,
-							"sales": 35000
-						},
-						"total": 159300
+			expect(state2.periods["2012"].reports.cash).to.deep.equal([
+				{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
+				{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 },
+				{ "date": "2012-04-07", "id": "04", "cash": 124000, "financing": 124000 },
+				{ "date": "2012-04-07", "id": "04", "cash": -155000, "investing": -155000 },
+				{ "date": "2012-05-25", "id": "05", "cash": -33000, "investing": -33000 },
+				{ "date": "2012-06-02", "id": "06", "cash": -120000, "investing": -120000 },
+				{ "date": "2012-06-30", "id": "08", "cash": -2100, "investing": -2100 },
+				{ "date": "2012-06-30", "id": "09", "cash": -8000, "operating": -8000 },
+				{ "date": "2012-06-30", "id": "10", "cash": -5000, "operating": -5000 },
+				{ "date": "2012-07-31", "id": "13", "cash": -2000, "operating": -2000 },
+				{ "date": "2012-08-31", "id": "14", "cash": -2500, "financing": -2500 },
+				{ "date": "2012-12-01", "id": "15", "cash": 1200, "operating": 1200 },
+				{ "date": "2012-12-31", "id": "16", "cash": 120100, "operating": 120100 },
+				{ "date": "2012-12-31", "id": "17", "cash": -38000, "operating": -38000 },
+				{ "date": "2012-12-31", "id": "18", "cash": 35000, "operating": 35000 },
+				{ "date": "2012-12-31", "id": "20", "cash": -82000, "operating": -82000 },
+			]);
+			expect(state2.periods["2012"].reports.income).to.deep.equal({
+				"revenues": {
+					"accounts": {
+						"rental": 124300,
+						"sales": 35000
 					},
-					"costOfRevenues": {
-						"accounts": {
-							"cost of goods sold": -30000
-						},
-						"total": -30000
+					"total": 159300
+				},
+				"costOfRevenues": {
+					"accounts": {
+						"cost of goods sold": -30000
 					},
-					"periodExpenses": {
-						"accounts": {
-							"salaries": -82000,
-							"legal fees": -3900
-						},
-						"total": -85900
-					}
+					"total": -30000
+				},
+				"periodExpenses": {
+					"accounts": {
+						"salaries": -82000,
+						"legal fees": -3900
+					},
+					"total": -85900
 				}
 			});
 		});
@@ -501,7 +491,7 @@ describe('core logic', () => {
 			// console.log(JSON.stringify(_.omit(state.toJS(), "transactions"), null, '\t'));
 			// console.log(JSON.stringify(state.toJS().transactions, null, '\t'));
 			const state2 = state.toJS();
-			expect(state2.accountEntries).to.deep.equal({
+			expect(state2.periods["2012"].accountEntries).to.deep.equal({
 				"liabilities:current:unearned rental revenue": {
 					"unadjusted": { "entries": { "15": -1200 }, "sum": -1200, "sumOut": -1200 },
 					"adjusting": { "entries": { "27": 100 }, "sum": 100, "sumIn": 100 }
@@ -606,227 +596,219 @@ describe('core logic', () => {
 					"adjusting": {"entries": { "27": -100 }, "sum": -100, "sumOut": -100 }
 				}
 			});
-			expect(state2["2012"].reports.cash).to.deep.equal({
-				"2012": [
-					{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
-					{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 },
-					{ "date": "2012-04-07", "id": "04", "cash": 124000, "financing": 124000 },
-					{ "date": "2012-04-07", "id": "04", "cash": -155000, "investing": -155000 },
-					{ "date": "2012-05-25", "id": "05", "cash": -33000, "investing": -33000 },
-					{ "date": "2012-06-02", "id": "06", "cash": -120000, "investing": -120000 },
-					{ "date": "2012-06-30", "id": "08", "cash": -2100, "investing": -2100 },
-					{ "date": "2012-06-30", "id": "09", "cash": -8000, "operating": -8000 },
-					{ "date": "2012-06-30", "id": "10", "cash": -5000, "operating": -5000 },
-					{ "date": "2012-07-31", "id": "13", "cash": -2000, "operating": -2000 },
-					{ "date": "2012-08-31", "id": "14", "cash": -2500, "financing": -2500 },
-					{ "date": "2012-12-01", "id": "15", "cash": 1200, "operating": 1200 },
-					{ "date": "2012-12-31", "id": "16", "cash": 120100, "operating": 120100 },
-					{ "date": "2012-12-31", "id": "17", "cash": -38000, "operating": -38000 },
-					{ "date": "2012-12-31", "id": "18", "cash": 35000, "operating": 35000 },
-					{ "date": "2012-12-31", "id": "20", "cash": -82000, "operating": -82000 },
-				]
-			});
-			expect(state2["2012"].reports.income).to.deep.equal({
-				"2012": {
-					"revenues": {
-						"accounts": {
-							"rental": 124400,
-							"sales": 35000
-						},
-						"total": 159400
+			expect(state2.periods["2012"].reports.cash).to.deep.equal([
+				{ "date": "2012-04-01", "id": "01", "cash": 250000, "financing": 250000 },
+				{ "date": "2012-04-02", "id": "03", "cash": -3900, "operating": -3900 },
+				{ "date": "2012-04-07", "id": "04", "cash": 124000, "financing": 124000 },
+				{ "date": "2012-04-07", "id": "04", "cash": -155000, "investing": -155000 },
+				{ "date": "2012-05-25", "id": "05", "cash": -33000, "investing": -33000 },
+				{ "date": "2012-06-02", "id": "06", "cash": -120000, "investing": -120000 },
+				{ "date": "2012-06-30", "id": "08", "cash": -2100, "investing": -2100 },
+				{ "date": "2012-06-30", "id": "09", "cash": -8000, "operating": -8000 },
+				{ "date": "2012-06-30", "id": "10", "cash": -5000, "operating": -5000 },
+				{ "date": "2012-07-31", "id": "13", "cash": -2000, "operating": -2000 },
+				{ "date": "2012-08-31", "id": "14", "cash": -2500, "financing": -2500 },
+				{ "date": "2012-12-01", "id": "15", "cash": 1200, "operating": 1200 },
+				{ "date": "2012-12-31", "id": "16", "cash": 120100, "operating": 120100 },
+				{ "date": "2012-12-31", "id": "17", "cash": -38000, "operating": -38000 },
+				{ "date": "2012-12-31", "id": "18", "cash": 35000, "operating": 35000 },
+				{ "date": "2012-12-31", "id": "20", "cash": -82000, "operating": -82000 },
+			]);
+			expect(state2.periods["2012"].reports.income).to.deep.equal({
+				"revenues": {
+					"accounts": {
+						"rental": 124400,
+						"sales": 35000
 					},
-					"costOfRevenues": {
-						"accounts": {
-							"cost of goods sold": -30000,
-							"software amortization": -350,
-							"depreciation": -30000
-						},
-						"total": -60350
+					"total": 159400
+				},
+				"costOfRevenues": {
+					"accounts": {
+						"cost of goods sold": -30000,
+						"software amortization": -350,
+						"depreciation": -30000
 					},
-					"periodExpenses": {
-						"accounts": {
-							"salaries": -82000,
-							"legal fees": -3900,
-							"advertising": -4000,
-							"depreciation": -1500
-						},
-						"total": -91400
+					"total": -60350
+				},
+				"periodExpenses": {
+					"accounts": {
+						"salaries": -82000,
+						"legal fees": -3900,
+						"advertising": -4000,
+						"depreciation": -1500
 					},
-					"secondaryLosses": {
-						"accounts": {
-							"interest": -4900
-						},
-						"total": -4900
+					"total": -91400
+				},
+				"secondaryLosses": {
+					"accounts": {
+						"interest": -4900
 					},
-					"secondaryGains": {
-						"accounts": {
-							"interest": 250
-						},
-						"total": 250
-					}
+					"total": -4900
+				},
+				"secondaryGains": {
+					"accounts": {
+						"interest": 250
+					},
+					"total": 250
 				}
 			});
-			expect(state2["2012"].reports.balance).to.deep.equal({
-				"2012": {
-					"assetsCurrent": {
-						"accounts": {
-							"cash": 78800,
-							"inventory": 12000,
-							"prepaid advertising": 4000,
-							"notes receivable": 5000,
-							"accounts receivable": 4200,
-							"interest receivable": 250
-						},
-						"total": 104250
+			expect(state2.periods["2012"].reports.balance).to.deep.equal({
+				"assetsCurrent": {
+					"accounts": {
+						"cash": 78800,
+						"inventory": 12000,
+						"prepaid advertising": 4000,
+						"notes receivable": 5000,
+						"accounts receivable": 4200,
+						"interest receivable": 250
 					},
-					"assetsLongterm": {
-						"accounts": {
-							"buildings": 85000,
-							"land": 103000,
-							"equipment": 120000,
-							"accumulated depreciation": -31500
-						},
-						"total": 276500
+					"total": 104250
+				},
+				"assetsLongterm": {
+					"accounts": {
+						"buildings": 85000,
+						"land": 103000,
+						"equipment": 120000,
+						"accumulated depreciation": -31500
 					},
-					"assetsIntangible": {
-						"accounts": {
-							"prepaid software": 1750
-						},
-						"total": 1750
+					"total": 276500
+				},
+				"assetsIntangible": {
+					"accounts": {
+						"prepaid software": 1750
 					},
-					"debitsTotal": {
-						"total": 382500
+					"total": 1750
+				},
+				"debitsTotal": {
+					"total": 382500
+				},
+				"liabilitiesCurrent": {
+					"accounts": {
+						"accounts payable": 2000,
+						"dividends payable": 0,
+						"unearned rental revenue": 1100,
+						"interest": 4900,
+						"income taxes payable": 630
 					},
-					"liabilitiesCurrent": {
-						"accounts": {
-							"accounts payable": 2000,
-							"dividends payable": 0,
-							"unearned rental revenue": 1100,
-							"interest": 4900,
-							"income taxes payable": 630
-						},
-						"total": 8630
+					"total": 8630
+				},
+				"liabilitiesLongterm": {
+					"accounts": {
+						"mortgage payable": 124000
 					},
-					"liabilitiesLongterm": {
-						"accounts": {
-							"mortgage payable": 124000
-						},
-						"total": 124000
+					"total": 124000
+				},
+				"liabilitiesTotal": {
+					"total": 132630
+				},
+				"equity": {
+					"accounts": {
+						"common stock": 25000,
+						"additional paid-in capital": 225000,
+						"retained earnings": -130
 					},
-					"liabilitiesTotal": {
-						"total": 132630
-					},
-					"equity": {
-						"accounts": {
-							"common stock": 25000,
-							"additional paid-in capital": 225000,
-							"retained earnings": -130
-						},
-						"total": 249870
-					},
-					"creditsTotal": {
-						"total": 382500
-					},
-				}
+					"total": 249870
+				},
+				"creditsTotal": {
+					"total": 382500
+				},
 			});
 			// console.log(JSON.stringify(state.toJS().reports.cashflow, null, '\t'));
-			expect(state2["2012"].reports.cashflow).to.deep.equal({
-				"2012": {
-					"financing": {
-						"transactions": [
-							{
-								"id": "01",
-								"description": "Sell shares",
-								"amount": 250000
-							},
-							{
-								"id": "04",
-								"description": "Buy building and land",
-								"amount": 124000
-							},
-							{
-								"id": "14",
-								"description": "Pay dividend",
-								"amount": -2500
-							}
-						],
-						"total": 371500
-					},
-					"operating": {
-						"transactions": [
-							{
-								"id": "03",
-								"description": "Legal fees",
-								"amount": -3900
-							},
-							{
-								"id": "09",
-								"description": "Buy advertising",
-								"amount": -8000
-							},
-							{
-								"id": "10",
-								"description": "Loan to Park",
-								"amount": -5000
-							},
-							{
-								"id": "13",
-								"description": "Pay supplier",
-								"amount": -2000
-							},
-							{
-								"id": "15",
-								"description": "Sell pre-paid rentals",
-								"amount": 1200
-							},
-							{
-								"id": "16",
-								"description": "Receive rental revenue",
-								"amount": 120100
-							},
-							{
-								"id": "17",
-								"description": "Pay for inventory",
-								"amount": -38000
-							},
-							{
-								"id": "18",
-								"description": "Sales of sundries",
-								"amount": 35000
-							},
-							{
-								"id": "20",
-								"description": "Pay salaries",
-								"amount": -82000
-							}
-						],
-						"total": 17400
-					},
-					"investing": {
-						"transactions": [
-							{
-								"id": "04",
-								"description": "Buy building and land",
-								"amount": -155000
-							},
-							{
-								"id": "05",
-								"description": "Building renovation",
-								"amount": -33000
-							},
-							{
-								"id": "06",
-								"description": "Buy metal detectors",
-								"amount": -120000
-							},
-							{
-								"id": "08",
-								"description": "Pay for software site license",
-								"amount": -2100
-							}
-						],
-						"total": -310100
-					}
+			expect(state2.periods["2012"].reports.cashflow).to.deep.equal({
+				"financing": {
+					"transactions": [
+						{
+							"id": "01",
+							"description": "Sell shares",
+							"amount": 250000
+						},
+						{
+							"id": "04",
+							"description": "Buy building and land",
+							"amount": 124000
+						},
+						{
+							"id": "14",
+							"description": "Pay dividend",
+							"amount": -2500
+						}
+					],
+					"total": 371500
+				},
+				"operating": {
+					"transactions": [
+						{
+							"id": "03",
+							"description": "Legal fees",
+							"amount": -3900
+						},
+						{
+							"id": "09",
+							"description": "Buy advertising",
+							"amount": -8000
+						},
+						{
+							"id": "10",
+							"description": "Loan to Park",
+							"amount": -5000
+						},
+						{
+							"id": "13",
+							"description": "Pay supplier",
+							"amount": -2000
+						},
+						{
+							"id": "15",
+							"description": "Sell pre-paid rentals",
+							"amount": 1200
+						},
+						{
+							"id": "16",
+							"description": "Receive rental revenue",
+							"amount": 120100
+						},
+						{
+							"id": "17",
+							"description": "Pay for inventory",
+							"amount": -38000
+						},
+						{
+							"id": "18",
+							"description": "Sales of sundries",
+							"amount": 35000
+						},
+						{
+							"id": "20",
+							"description": "Pay salaries",
+							"amount": -82000
+						}
+					],
+					"total": 17400
+				},
+				"investing": {
+					"transactions": [
+						{
+							"id": "04",
+							"description": "Buy building and land",
+							"amount": -155000
+						},
+						{
+							"id": "05",
+							"description": "Building renovation",
+							"amount": -33000
+						},
+						{
+							"id": "06",
+							"description": "Buy metal detectors",
+							"amount": -120000
+						},
+						{
+							"id": "08",
+							"description": "Pay for software site license",
+							"amount": -2100
+						}
+					],
+					"total": -310100
 				}
 			});
 		});
